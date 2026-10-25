@@ -1,0 +1,11 @@
+﻿import fs from "node:fs";
+let p="lib/outline.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("export async function outlineLibrary(index, args = {}) {","export async function outlineLibrary(index, args = {}, settings = {}) {");
+c=c.replace("const maxFiles = Math.max(1, Math.min(Number(args.maxFiles ?? 60), 200));","const maxFiles = Math.max(1, Math.min(Number(args.maxFiles ?? settings.outlineMaxFiles ?? 60), 200));");
+fs.writeFileSync(p,c,"utf8");
+p="lib/index.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("import { humanBytes, toPosix } from './util.js';","import { humanBytes, toPosix } from './util.js';\nimport { loadSettings } from './settings-store.js';");
+c=c.replace("        const index = indexFor(library, resolved);\n        const result = await searchLibrary(index, args ?? {}, resolved);\n        return result;","        const index = indexFor(library, resolved);\n        const settings = await loadSettings();\n        const result = await searchLibrary(index, args ?? {}, resolved, settings);\n        return result;");
+c=c.replace("        const index = indexFor(library, resolved);\n        return outlineLibrary(index, args ?? {});","        const index = indexFor(library, resolved);\n        const settings = await loadSettings();\n        return outlineLibrary(index, args ?? {}, settings);");
+fs.writeFileSync(p,c,"utf8");
+console.log("outline/index settings patched");

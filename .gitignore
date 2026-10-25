@@ -1,0 +1,9 @@
+node_modules/
+fixtures/
+*.tgz
+.cache/
+.cache-*/
+组卷/
+*.log
+.DS_Store
+Thumbs.db

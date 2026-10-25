@@ -1,0 +1,14 @@
+﻿import fs from "node:fs";
+let p="lib/settings-store.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("  strongLimit: 1,","  strongLimit: 1,\n  strongGateMode: 'all',\n  strongGateFiles: 30,\n  strongGateRatio: 20,\n  strongRetry: false,\n  strongRetryMax: 1,\n  strongMaxFiles: 'all',\n  strongMaxBlocksPerFile: 2,\n  strongSnippetChars: 45,");
+c=c.replace("  if (typeof source.enableStrong === 'boolean') base.enableStrong = source.enableStrong;",`  if (typeof source.enableStrong === 'boolean') base.enableStrong = source.enableStrong;
+  if (['files','ratio','domain','all'].includes(source.strongGateMode)) base.strongGateMode = source.strongGateMode;
+  base.strongGateFiles = integer(source.strongGateFiles, 1, 5000, base.strongGateFiles);
+  base.strongGateRatio = integer(source.strongGateRatio, 1, 100, base.strongGateRatio);
+  if (typeof source.strongRetry === 'boolean') base.strongRetry = source.strongRetry;
+  base.strongRetryMax = integer(source.strongRetryMax, 0, 5, base.strongRetryMax);
+  base.strongMaxFiles = source.strongMaxFiles === 'all' ? 'all' : integer(source.strongMaxFiles, 1, 5000, base.strongMaxFiles);
+  base.strongMaxBlocksPerFile = integer(source.strongMaxBlocksPerFile, 1, 50, base.strongMaxBlocksPerFile);
+  base.strongSnippetChars = integer(source.strongSnippetChars, 20, 400, base.strongSnippetChars);`);
+fs.writeFileSync(p,c,"utf8");
+console.log("strong settings");

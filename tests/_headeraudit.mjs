@@ -1,0 +1,10 @@
+﻿import { loadSettings } from "../lib/settings-store.js";
+import { indexFor } from "../lib/indexer.js";
+import { searchLibrary, renderSearchResult } from "../lib/search.js";
+const base=await loadSettings();
+const root="D:/AI/work/kw-search-mode/fixtures/选题";
+const cfg={libraries:[root],rgPath:"D:/AI/deepseek-harness/DSH Desktop/resources/app.asar.unpacked/node_modules/@vscode/ripgrep-win32-x64/bin/rg.exe",associations:{沉淀溶解平衡:["溶度积","Ksp","难溶电解质","沉淀转化"]}};
+const idx=indexFor(root,cfg);
+const r=await searchLibrary(idx,{keywords:["沉淀溶解平衡"],refresh:"never"},cfg,{...base,dedupe:false});
+console.log(renderSearchResult(r).split("\n").slice(2,6).join("\n"));
+console.log("totals",JSON.stringify(r.totals));

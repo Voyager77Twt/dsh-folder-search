@@ -1,0 +1,74 @@
+{
+  "name": "dsh-folder-search",
+  "version": "0.5.17",
+  "description": "本地文件夹检索模式：在本地 Word / PDF / PPT / Excel 文件夹里按关键词检索并给出可打开的位置，读取完整题目，导出组卷 Word。",
+  "type": "module",
+  "license": "MIT",
+  "author": "dsh-library-search contributors",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "agent-preset",
+    "library",
+    "search",
+    "pdf",
+    "docx",
+    "exam"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Voyager77Twt/dsh-folder-search.git"
+  },
+  "homepage": "https://github.com/Voyager77Twt/dsh-folder-search#readme",
+  "bugs": {
+    "url": "https://github.com/Voyager77Twt/dsh-folder-search/issues"
+  },
+  "engines": {
+    "node": ">=22.19",
+    "dsh": ">=0.2.0-rc.2"
+  },
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json",
+    "./client": "./lib/client.js",
+    "./settings-host": "./lib/settings-host.js"
+  },
+  "files": [
+    "lib",
+    "scripts",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": ">=0.2.0-rc.2"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-tools": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "fflate": "0.8.2",
+    "unpdf": "^1.9.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "js-yaml": "^5.5.0"
+  },
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "harnessRange": ">=0.2.0-rc.2",
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": []
+    }
+  }
+}

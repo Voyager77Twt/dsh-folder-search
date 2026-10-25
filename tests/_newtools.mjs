@@ -1,0 +1,15 @@
+﻿import { apply } from "../lib/index.js";
+const lib="D:/AI/work/kw-search-mode/fixtures/library";
+const cache="D:/AI/work/kw-search-mode/fixtures/.cache-new";
+const tools=[]; const ctx={tools:{register:(d)=>{tools.push(d);return ()=>{};}},logger:()=>({info(){}})};
+apply(ctx,{libraries:[lib],cacheDir:cache,indexBudgetPerCall:10,cacheCapMB:200});
+console.log("tools:",tools.map(t=>t.name).join(", "));
+const call=async(name,args)=>{const t=tools.find(x=>x.name===name); return t.execute(args,{signal:new AbortController().signal});};
+const idx=await call("library_index",{library:lib,maxMinutes:1,legacyBatch:5,budget:10});
+console.log("index:",JSON.stringify({documents:idx.documents,ready:idx.ready,failed:idx.failed,pending:idx.pending,convertedLegacy:idx.convertedLegacy,skipped:idx.skipped}));
+const exp=await call("library_index_export",{library:lib,output:"D:/AI/work/kw-search-mode/fixtures/test-index.zip"});
+console.log("export:",JSON.stringify(exp));
+const dry=await call("library_index_import",{library:lib,package:"D:/AI/work/kw-search-mode/fixtures/test-index.zip",verify:"mtime",dryRun:true});
+console.log("import dry:",JSON.stringify(dry));
+const imp=await call("library_index_import",{library:lib,package:"D:/AI/work/kw-search-mode/fixtures/test-index.zip",verify:"size",dryRun:false});
+console.log("import:",JSON.stringify(imp));

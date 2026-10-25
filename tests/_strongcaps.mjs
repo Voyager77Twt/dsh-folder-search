@@ -1,0 +1,13 @@
+﻿import fs from "node:fs";
+let p="lib/search.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("export async function searchLibrary(index, args, config = {}, settings = {}) {","async function searchOnce(index, args, config = {}, settings = {}) {");
+c=c.replace("  const assocSnippet = Math.max(20, Number(settings.expandSnippetChars ?? config.expandSnippetChars ?? 45));\n  const snippetChars = Math.max(normalSnippet, assocSnippet);",
+"  const assocSnippet = Math.max(20, Number(settings.expandSnippetChars ?? config.expandSnippetChars ?? 45));\n  const strongMax = settings.strongMaxFiles ?? 'all';\n  const strongLimit = strongMax === 'all' ? Infinity : Math.max(1, Math.min(Number(strongMax), 5000));\n  const strongBlocks = Math.max(1, Math.min(Number(settings.strongMaxBlocksPerFile ?? 2), 50));\n  const strongSnippet = Math.max(20, Number(settings.strongSnippetChars ?? 45));\n  const snippetChars = Math.max(normalSnippet, assocSnippet, strongSnippet);");
+c=c.replace("    const sortedBlocks = blocks.slice(0, directFile ? normalBlocks : assocBlocks);\n    if (!directFile) for (const block of sortedBlocks) block.snippet = block.snippet.length > assocSnippet ? block.snippet.slice(0, assocSnippet) + '…' : block.snippet;",
+"    const sortedBlocks = blocks.slice(0, directFile ? normalBlocks : strongBlocks);\n    if (!directFile) for (const block of sortedBlocks) block.snippet = block.snippet.length > strongSnippet ? block.snippet.slice(0, strongSnippet) + '…' : block.snippet;");
+// gate criteria
+c=c.replace("    const broadLimit = Math.max(2 * directFiles, Math.ceil(totalDocs * 0.2));\n    const domainWord = /(工业|产业|行业|领域|技术|方法|工艺|生产|应用|研究|化学|反应|原理|实验|流程|装置|设备|材料|物质|题目|试题)$/;\n    const kept = ranked.find(([term, count]) => count <= broadLimit && !domainWord.test(term)) || null;",
+"    const domainWord = /(工业|产业|行业|领域|技术|方法|工艺|生产|应用|研究|化学|反应|原理|实验|流程|装置|设备|材料|物质|题目|试题)$/;\n    const mode = settings.strongGateMode || 'all';\n    const maxFiles = Number(settings.strongGateFiles ?? 30);\n    const maxRatio = Number(settings.strongGateRatio ?? 20);\n    const isBroad = (term, count) => {\n      const overFiles = count > maxFiles;\n      const overRatio = (count / totalDocs) * 100 > maxRatio;\n      const domain = domainWord.test(term);\n      if (mode === 'files') return overFiles;\n      if (mode === 'ratio') return overRatio;\n      if (mode === 'domain') return domain;\n      return overFiles || overRatio || domain;\n    };\n    const kept = ranked.find(([term, count]) => !isBroad(term, count)) || null;");
+c=c.replace("  const shownRelated = relatedResults.slice(0, assocLimit);","  const shownRelated = relatedResults.slice(0, strongLimit);");
+fs.writeFileSync(p,c,"utf8");
+console.log("search caps and gate criteria");

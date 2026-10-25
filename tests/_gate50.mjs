@@ -1,0 +1,10 @@
+﻿import fs from "node:fs";
+let p="lib/settings-store.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("  strongGateFiles: 30,","  strongGateFiles: 50,");
+c=c.replace("integer(source.strongGateFiles, 1, 5000, base.strongGateFiles)","integer(source.strongGateFiles, 1, 5000, base.strongGateFiles)");
+fs.writeFileSync(p,c,"utf8");
+p="lib/client.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("settings.strongGateFiles, 30","settings.strongGateFiles, 50");
+c=c.replace("update({ strongGateFiles: num(e.target.value, 30) })","update({ strongGateFiles: num(e.target.value, 50) })");
+fs.writeFileSync(p,c,"utf8");
+console.log("threshold 50");

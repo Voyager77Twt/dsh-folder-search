@@ -1,0 +1,11 @@
+﻿import { indexFor } from "../lib/indexer.js";
+import { searchLibrary } from "../lib/search.js";
+import { loadSettings } from "../lib/settings-store.js";
+const root="D:/AI/work/kw-search-mode/fixtures/选题";
+const cfg={libraries:[root],rgPath:"D:/AI/deepseek-harness/DSH Desktop/resources/app.asar.unpacked/node_modules/@vscode/ripgrep-win32-x64/bin/rg.exe"};
+const st=await loadSettings();
+console.log("strongLimit",st.strongLimit,"pairs",Object.keys(st.strongAssociations).length,"hou",st.strongAssociations["侯氏制碱法"]);
+const idx=indexFor(root,cfg);
+const r=await searchLibrary(idx,{keywords:["侯氏制碱法"],refresh:"never"},cfg,st);
+console.log("expanded:",JSON.stringify(r.query.expanded));
+console.log("files",r.totals.files,"shown",r.totals.shownFiles,"chars",r.files.length);

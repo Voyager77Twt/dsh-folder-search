@@ -1,0 +1,11 @@
+﻿import fs from "node:fs";
+let p="lib/search.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("  const totals = {\n    files: totalFilesHit,\n    blocks: totalBlocksHit,","  const totals = {\n    files: directResults.length + expandedResults.length + relatedResults.length,\n    blocks: directResults.reduce((sum, file) => sum + file.blocksHit, 0) + expandedResults.reduce((sum, file) => sum + file.blocksHit, 0) + relatedResults.reduce((sum, file) => sum + file.blocksHit, 0),");
+fs.writeFileSync(p,c,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.17"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+fs.writeFileSync("README.md",fs.readFileSync("README.md","utf8").replace("- 版本：`0.5.16`","- 版本：`0.5.17`"),"utf8");
+let t=fs.readFileSync("tests/_static-audit.mjs","utf8");
+t=t.replace('ok(pkg.version === "0.5.16", "package.version 0.5.16");','ok(pkg.version === "0.5.17", "package.version 0.5.17");');
+t=t.replace('ok(preset?.name === "本地文件夹检索模式", "preset display name");','ok(preset?.config?.name === "本地文件夹检索模式", "preset display name");');
+fs.writeFileSync("tests/_static-audit.mjs",t,"utf8");
+console.log("0.5.17 totals");

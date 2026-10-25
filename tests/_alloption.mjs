@@ -1,0 +1,12 @@
+﻿import fs from "node:fs";
+let p="lib/settings-store.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("  expandMaxFiles: 8,","  expandMaxFiles: 'all',");
+c=c.replace("  base.expandMaxFiles = integer(source.expandMaxFiles, 1, 5000, base.expandMaxFiles);","  base.expandMaxFiles = source.expandMaxFiles === 'all' ? 'all' : integer(source.expandMaxFiles, 1, 5000, base.expandMaxFiles);");
+fs.writeFileSync(p,c,"utf8");
+p="lib/client.js"; let cl=fs.readFileSync(p,"utf8");
+cl=cl.replace("h('span', { style: label }, '关联词输出·最多文件数'),\n              h('input', { type: 'number', min: 1, max: 5000, style: input, value: num(settings.expandMaxFiles, 8), onChange: (e) => update({ expandMaxFiles: num(e.target.value, 1) }) }),", "h('span', { style: label }, '关联词输出·最多文件数'),\n              h('input', { type: 'checkbox', style: checkbox, checked: settings.expandMaxFiles === 'all', onChange: (e) => update({ expandMaxFiles: e.target.checked ? 'all' : 20 }) }),\n              h('span', { style: { fontSize: '13px' } }, '全部'),\n              h('input', { type: 'number', min: 1, max: 5000, style: input, disabled: settings.expandMaxFiles === 'all', value: settings.expandMaxFiles === 'all' ? '' : num(settings.expandMaxFiles, 20), onChange: (e) => update({ expandMaxFiles: num(e.target.value, 1) }) }),");
+cl=cl.replace("note: '第 4 步（自动词表）或第 5 步（一般关联）触发时共用：最多列多少文件。普通原词检索不用它。'","note: '第 4 步（自动词表）或第 5 步（一般关联）触发时共用：最多列多少文件；勾选“全部”不按文件数截断。普通原词检索不用它。'");
+fs.writeFileSync(p,cl,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.6"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+fs.writeFileSync("README.md",fs.readFileSync("README.md","utf8").replace("- 版本：`0.5.5`","- 版本：`0.5.6`").replace("| 步骤 4/5 的关联词输出 | 8 / 2 / 45 |","| 步骤 4/5 的关联词输出 | 全部 / 2 / 45 |"),"utf8");
+console.log("0.5.6 all files option");

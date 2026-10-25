@@ -1,0 +1,12 @@
+﻿import fs from "node:fs";
+const user = "fan20071202";
+let p = "package.json";
+let pkg = JSON.parse(fs.readFileSync(p, "utf8"));
+pkg.repository.url = `https://github.com/${user}/dsh-folder-search.git`;
+pkg.homepage = `https://github.com/${user}/dsh-folder-search#readme`;
+pkg.bugs.url = `https://github.com/${user}/dsh-folder-search/issues`;
+fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + "\n", "utf8");
+let r = fs.readFileSync("README.md", "utf8");
+r = r.replaceAll("<你的用户名>", user);
+fs.writeFileSync("README.md", r, "utf8");
+console.log("updated placeholders to", user);

@@ -1,0 +1,11 @@
+﻿import fs from "node:fs";
+let p="lib/search.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("    const fileRelated = new Set();","    const fileStrong = new Set();\n    const fileGeneral = new Set();");
+c=c.replace("      const extraMatched = extraTerms.filter((term) => (caseSensitive ? text : text.toLowerCase()).includes(caseSensitive ? term : term.toLowerCase()));\n      if (!matched.length && !extraMatched.length) continue;","      const strongMatched = strongTerms.filter((term) => (caseSensitive ? text : text.toLowerCase()).includes(caseSensitive ? term : term.toLowerCase()));\n      const generalMatched = generalTerms.filter((term) => (caseSensitive ? text : text.toLowerCase()).includes(caseSensitive ? term : term.toLowerCase()));\n      const extraMatched = [...strongMatched, ...generalMatched];\n      if (!matched.length && !extraMatched.length) continue;");
+c=c.replace("      for (const term of extraMatched) fileRelated.add(term);","      for (const term of strongMatched) fileStrong.add(term);\n      for (const term of generalMatched) fileGeneral.add(term);");
+c=c.replace("    const covered = match === 'all' ? fileKeywords.size === keywords.length : fileKeywords.size > 0 || fileRelated.size > 0;","    const covered = match === 'all' ? fileKeywords.size === keywords.length : fileKeywords.size > 0 || fileStrong.size > 0;");
+c=c.replace("      related: [...fileRelated],\n      relatedOnly: fileKeywords.size === 0 && fileRelated.size > 0,","      related: [...fileStrong, ...fileGeneral],\n      relatedOnly: fileKeywords.size === 0 && fileStrong.size > 0,");
+fs.writeFileSync(p,c,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.4.2"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+const rd=fs.readFileSync("README.md","utf8").replace("- 版本：`0.4.1`","- 版本：`0.4.2`"); fs.writeFileSync("README.md",rd,"utf8");
+console.log("0.4.2 general terms no new files");

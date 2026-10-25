@@ -1,0 +1,13 @@
+﻿import fs from "node:fs";
+let p="lib/search.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("  const expand = args.expand !== false;","  const expand = args.expand === true;");
+fs.writeFileSync(p,c,"utf8");
+p="lib/index.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("  expand: { type: 'boolean', description: '是否用配置里的常见关联词扩展（默认 true，例如 有机 → 烃/醇/醛）。' },","  expand: { type: 'boolean', description: '是否用配置里的常见关联词扩展（默认 false；按类型找题时才开，例如 有机 → 烃/醇/醛）。' },");
+fs.writeFileSync(p,c,"utf8");
+p="README.md"; c=fs.readFileSync(p,"utf8");
+c=c.replace("- **关联词**：`有机 → 烃/醇/醛/羧酸/酯/同分异构` 等，可覆盖","- **关联词**：`有机 → 烃/醇/醛/羧酸/酯/同分异构` 等，可覆盖；检索默认不扩展，类型检索时模型才会 `expand=true`");
+fs.writeFileSync(p,c,"utf8");
+p="package.json"; const pkg=JSON.parse(fs.readFileSync(p,"utf8")); pkg.version="0.2.5"; fs.writeFileSync(p,JSON.stringify(pkg,null,2)+"\n","utf8");
+const rd=fs.readFileSync("README.md","utf8").replace("- 版本：`0.2.4`","- 版本：`0.2.5`"); fs.writeFileSync("README.md",rd,"utf8");
+console.log("0.2.5");

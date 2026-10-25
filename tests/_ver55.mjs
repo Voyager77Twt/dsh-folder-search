@@ -1,0 +1,1 @@
+﻿import fs from "node:fs"; const p=JSON.parse(fs.readFileSync("package.json","utf8")); p.version="0.5.5"; fs.writeFileSync("package.json",JSON.stringify(p,null,2)+"\n","utf8"); fs.writeFileSync("README.md",fs.readFileSync("README.md","utf8").replace("- 版本：`0.5.4`","- 版本：`0.5.5`"),"utf8"); console.log("0.5.5");

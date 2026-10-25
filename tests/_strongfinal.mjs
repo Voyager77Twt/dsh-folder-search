@@ -1,0 +1,11 @@
+﻿import { loadSettings } from "../lib/settings-store.js";
+import { indexFor } from "../lib/indexer.js";
+import { searchLibrary, renderSearchResult } from "../lib/search.js";
+const st=await loadSettings();
+console.log("settings",st.strongLimit,st.generalLimit,st.normalMaxFiles);
+const root="D:/AI/work/kw-search-mode/fixtures/选题";
+const cfg={libraries:[root],rgPath:"D:/AI/deepseek-harness/DSH Desktop/resources/app.asar.unpacked/node_modules/@vscode/ripgrep-win32-x64/bin/rg.exe"};
+const idx=indexFor(root,cfg);
+const r=await searchLibrary(idx,{keywords:["侯氏制碱法"],strongTerms:["侯德榜"],generalTerms:["纯碱"],refresh:"never"},cfg,st);
+console.log("files",r.totals.files,"relatedOnly",r.files.filter(f=>f.relatedOnly).length);
+console.log(renderSearchResult(r).split("\n").slice(0,8).join("\n"));

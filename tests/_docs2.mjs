@@ -1,0 +1,10 @@
+﻿import fs from "node:fs";
+let p="lib/settings-store.js"; let c=fs.readFileSync(p,"utf8");
+if(!c.includes("用户可在")) c=c.replace("export const DEFAULT_SETTINGS = {","/** 用户可在「本地搜索设置」页修改；只影响输出，不影响索引内容。 */\nexport const DEFAULT_SETTINGS = {");
+fs.writeFileSync(p,c,"utf8");
+p="lib/search.js"; c=fs.readFileSync(p,"utf8");
+if(!c.includes("强关联词由模型")) c=c.replace("  const strongTerms =","  // 强关联词由模型自己判断，可带来新文件；一般关联词只补充已命中文件，避免泛词爆炸。\n  const strongTerms =");
+fs.writeFileSync(p,c,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.4.5"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+const rd=fs.readFileSync("README.md","utf8").replace("- 版本：`0.4.4`","- 版本：`0.4.5`"); fs.writeFileSync("README.md",rd,"utf8");
+console.log("0.4.5 docs");
