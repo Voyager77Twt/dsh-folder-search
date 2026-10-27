@@ -1,0 +1,13 @@
+﻿import fs from "node:fs";
+let p="lib/indexer.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("      const same = previous && previous.mtimeMs === stat.mtimeMs && previous.size === stat.size;\n      if (same) continue;","      const same = previous && previous.mtimeMs === stat.mtimeMs && previous.size === stat.size;\n      if (same && !(options.retryErrors && previous.err)) continue;");
+fs.writeFileSync(p,c,"utf8");
+p="lib/settings-host.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("      const result = await index.sync({\n        budget: 200,\n        onProgress:","      const result = await index.sync({\n        budget: 200,\n        retryErrors: true,\n        onProgress:");
+fs.writeFileSync(p,c,"utf8");
+p="lib/index.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("            last = await index.sync({ budget });","            last = await index.sync({ budget, retryErrors: true });");
+fs.writeFileSync(p,c,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.27"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+fs.writeFileSync("README.md",fs.readFileSync("README.md","utf8").replace("- 版本：`0.5.26`","- 版本：`0.5.27`"),"utf8");
+console.log("retry failed entries in build");

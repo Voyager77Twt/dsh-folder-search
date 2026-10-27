@@ -1,0 +1,10 @@
+﻿import fs from "node:fs";
+let p="lib/index.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("library: { type: 'string', description: '题库根目录的绝对路径；省略时使用插件配置里的第一个库。' },","library: { type: 'string', description: '题库根目录的绝对路径；省略时使用设置页题库位置或插件配置的第一个库。' },");
+fs.writeFileSync(p,c,"utf8");
+p="README.md"; c=fs.readFileSync(p,"utf8");
+c=c.replace("- 版本：`0.5.17`","- 版本：`0.5.18`");
+c=c.replace("| 步骤 1·自动补索引 | 开 |","| 数据库位置 | 空 | 题库文件夹绝对路径；新会话自动使用，留空才问 |\n| 索引库位置 | 空 | 索引缓存目录；留空用 `%LOCALAPPDATA%\\dsh-library-search` |\n| 步骤 1·自动补索引 | 开 |");
+fs.writeFileSync(p,c,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.18"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+console.log("0.5.18 paths docs");

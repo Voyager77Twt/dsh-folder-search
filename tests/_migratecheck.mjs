@@ -1,0 +1,12 @@
+﻿import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import { migrateCacheRoots } from "../lib/settings-host.js";
+const base=await fs.promises.mkdtemp(path.join(os.tmpdir(),"dsh-migrate-"));
+const old=path.join(base,"old"), next=path.join(base,"new");
+await fs.promises.mkdir(path.join(old,"lib-abc"),{recursive:true});
+await fs.promises.writeFile(path.join(old,"lib-abc","manifest.json"),"{}");
+const r=await migrateCacheRoots(old,next);
+const copied=fs.existsSync(path.join(next,"lib-abc","manifest.json"));
+console.log(JSON.stringify({r,copied}));
+await fs.promises.rm(base,{recursive:true,force:true});

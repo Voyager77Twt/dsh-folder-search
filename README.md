@@ -4,6 +4,7 @@
 
 - 包名：`dsh-folder-search`
 - 版本：`0.5.27`
+- 作者：七七（Voyager77Twt）
 - 许可：MIT
 - 兼容：DSH `>= 0.2.0-rc.2`，Node `>= 22.19`
 - `.doc` / `.ppt` / `.rtf` 转换需要 Windows + 本机 Office
@@ -28,14 +29,14 @@ github:Voyager77Twt/dsh-folder-search
 固定版本：
 
 ```text
-github:Voyager77Twt/dsh-folder-search#v0.5.17
+github:Voyager77Twt/dsh-folder-search#v0.5.27
 ```
 
 > 仓库是私有时，运行 DSH 的机器必须已登录对应 GitHub 账号，或使用可访问该仓库的 token。
 
 ### 方式二：安装 tgz
 
-把 `dsh-folder-search-0.5.17.tgz` 发给对方，然后：
+把 `dsh-folder-search-0.5.27.tgz` 发给对方，然后：
 
 ```text
 我发给你一个 DSH 插件包：<tgz 的绝对路径>。
@@ -53,8 +54,9 @@ plugin_manager install_bundle  target: D:\path\to\dsh-folder-search
 安装需要 Full access / 用户批准。装好后：
 
 1. 新建会话 → 模式选「本地文件夹检索模式」；
-2. 第一次检索会先问题库文件夹的绝对路径；
-3. 想固定路径，在插件配置里加：
+2. 打开 设置 → **本地搜索设置** → 「数据库与索引库位置」，填写题库的绝对路径并保存；
+3. 保存后会自动开始建索引，可在同页「索引库状态」查看进度；
+4. 旧配置仍可在插件配置里写 `libraries`，但设置页的题库位置优先：
 
 ```yaml
 - id: library-search-tools
@@ -77,13 +79,49 @@ plugin_manager install_bundle  target: D:\path\to\dsh-folder-search
 搜索「侯氏制碱法」相关的题目，给文件和位置。
 ```
 
-第一次检索会在后台建文本缓存；大库分批建，输出会提示还剩多少。
-
-设置页在 DSH 设置 → **本地搜索设置**（排在插件市场后面，order 50）。设置只影响输出，不会重建索引。
+第一次检索会在后台建文本缓存；大库分批建，输出会提示还剩多少。设置页在 DSH 设置 → **本地搜索设置**（排在插件市场后面，order 50）。修改题库/索引路径并保存会触发自动迁移和建库；只改输出设置不会重建索引。
 
 ---
 
-## 3. 设置页说明
+## 3. 数据库与索引库位置
+
+设置页「数据库与索引库位置」：
+
+- **题库位置**：本地题库/文件夹的绝对路径；
+- **索引库位置**：文本缓存目录，留空使用 `%LOCALAPPDATA%\dsh-library-search`。
+
+保存设置后：
+
+1. 如果题库或索引库路径发生变化，插件自动开始建索引；
+2. 索引在后台分批进行，不阻塞设置页；
+3. 设置页「索引库状态」显示：
+   - 索引大小；
+   - 已索引 / 总文件数；
+   - 待建、失败数量；
+   - 进度条和建库中状态；
+   - 索引目录。
+
+第一次填写路径并保存就会开始建库；已有缓存时只补新增/改动文件。
+
+路径变化时：
+
+- 修改**题库位置**：新位置会重新建库；
+- 修改**索引库位置**：先自动迁移旧索引，复制成功后再删除旧目录；
+- 目标位置已有同名 `lib-*` 时跳过，保留旧目录；
+- 建库由设置页「索引库状态」控制，可点「开始/继续建库」。
+
+旧版 `.doc/.rtf` 会先用一个 Word 会话批量转 PDF，再并行抽取；`.docx/.pdf/.xlsx` 等按「建库并发数」并行。
+
+建库时的单文件回退：
+
+1. 批量转换；
+2. 批量失败 → 逐文件单独转换；
+3. 单文件也失败才标记失败；
+4. 建库 sync 会重试之前失败的条目（`retryErrors`），不会因为 mtime 没变就永远跳过。
+
+索引状态接口：`/api/dsh-folder-search/index`（GET 查进度，POST `action=build` 开始/继续）。
+
+## 4. 设置页说明
 
 ### 3.1 原词、自动扩展、强关联
 
@@ -170,6 +208,9 @@ plugin_manager install_bundle  target: D:\path\to\dsh-folder-search
 | 合并重复文件 | 关 |
 | 最终输出文件数 | 全部 |
 | 自动补索引 | 开 |
+| 建库并发数 | 3（1–8） |
+| 题库位置 | 空（空时在对话里询问） |
+| 索引库位置 | 空（默认 `%LOCALAPPDATA%\dsh-library-search`） |
 | 目录默认文件数 | 60 |
 
 全部设置写入：
@@ -182,7 +223,7 @@ plugin_manager install_bundle  target: D:\path\to\dsh-folder-search
 
 ---
 
-## 4. 文本缓存
+## 5. 文本缓存
 
 Word / PDF / PPT / Excel 不是纯文本。第一次检索时，插件会：
 
@@ -197,7 +238,25 @@ Word / PDF / PPT / Excel 不是纯文本。第一次检索时，插件会：
 %LOCALAPPDATA%\dsh-library-search\lib-<hash>\
 ```
 
-实测约原文件的 1%。默认上限 250 MB，可用 `cacheCapMB` 调低；删缓存只是下次重新抽。
+实测文本缓存约为原文件的 **0.4%**（本机 4.5 GB 题库约 20 MB）。默认上限 250 MB，可用 `cacheCapMB` 调低；删缓存只是下次重新抽。
+
+建库过程中旧版 `.doc` 会生成 `legacy-pdf-*` 临时 PDF，这部分**不算文本索引**，建库结束会删除；如果看到索引大小短时间变大，先看是否还有这个目录。
+
+### 建库失败与已知不可索引文件
+
+当前题库 1767 个文件里，1760 个已建好；剩余 7 个是：
+
+| 文件 | 原因 |
+|---|---|
+| `模拟试题/2022/一模/朝阳/朝阳区第二学期高三化学质量检测一试卷.docx` | `invalid zip data`，docx 本身损坏 |
+| `期末考试/2020期中期末/2020选择.docx` | `invalid zip data` |
+| `期末考试/2019期末/东城期末/18题.pptx` | `invalid zip data` |
+| `期末考试/2013期末/成绩/王莹.xlsx` | 文件有密码 |
+| `模拟试题/2020/西城一模05/2020.5西城高三化学诊断性测试试卷.doc` | Word 批量/单文件转换均失败 |
+| `模拟试题/2013/2013房山高三一模化学试题.doc` | 同上 |
+| `模拟试题/2010一模/通州区高三年级模拟考试（一）.doc` | 同上 |
+
+损坏的 zip、加密 Excel 无法靠重试修复；3 个 `.doc` 已经尝试过单文件 Word 转换，仍然失败，通常是文件损坏或本机 Word 打不开。修复这些文件后，重新建库即可补上。
 
 ### 缓存会不会导致搜索不全？
 
@@ -219,7 +278,7 @@ Word / PDF / PPT / Excel 不是纯文本。第一次检索时，插件会：
 
 ---
 
-## 5. 支持范围与工具
+## 6. 支持范围与工具
 
 | 类型 | 支持 |
 |---|---|
@@ -247,7 +306,7 @@ Word / PDF / PPT / Excel 不是纯文本。第一次检索时，插件会：
 
 ---
 
-## 6. 发布到 GitHub
+## 7. 发布到 GitHub
 
 ### 6.1 发布前检查
 
@@ -294,7 +353,7 @@ node tests/_static-audit.mjs
 git init
 git add .
 git status --short        # 确认 fixtures/、*.tgz、node_modules/ 没有被加入
-git commit -m "feat: dsh-folder-search 0.5.17"
+git commit -m "feat: dsh-folder-search 0.5.27"
 git branch -M main
 git remote add origin https://github.com/Voyager77Twt/dsh-folder-search.git
 git push -u origin main
@@ -326,15 +385,15 @@ gh repo create dsh-folder-search --public --source . --remote origin --push
 ### 6.4 发 Release
 
 ```powershell
-git tag v0.5.17
-git push origin v0.5.17
+git tag v0.5.27
+git push origin v0.5.27
 ```
 
 然后 GitHub 仓库 → Releases → Draft a new release：
 
-- Tag：`v0.5.17`
-- 标题：`dsh-folder-search 0.5.17`
-- 附件：上传 `dsh-folder-search-0.5.17.tgz`
+- Tag：`v0.5.27`
+- 标题：`dsh-folder-search 0.5.27`
+- 附件：上传 `dsh-folder-search-0.5.27.tgz`
 - 说明：写本次改动和安装命令
 
 发布后别人可以：
@@ -354,16 +413,16 @@ pnpm pack
 
 git add .
 git commit -m "fix: ..."
-git tag v0.5.18
+git tag v0.5.27
 git push origin main
-git push origin v0.5.18
+git push origin v0.5.27
 ```
 
 再到 Releases 上传新的 tgz。
 
 ---
 
-## 7. 限制
+## 8. 限制
 
 - 扫描 PDF、图片文字不索引；
 - Word 的页眉/页脚/脚注、公式对象、PPT 备注、Excel 公式/批注不抽取；
@@ -374,7 +433,7 @@ git push origin v0.5.18
 
 ---
 
-## 8. 开发
+## 9. 开发
 
 ```powershell
 node tests/_static-audit.mjs   # 语法、清单、设置键、路由、分类/上限

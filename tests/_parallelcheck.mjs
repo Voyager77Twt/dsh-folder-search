@@ -1,0 +1,11 @@
+﻿import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { indexFor } from "../lib/indexer.js";
+const root=await fs.mkdtemp(path.join(os.tmpdir(),"folder-search-parallel-"));
+for(let i=0;i<12;i++) await fs.writeFile(path.join(root,`f${i}.txt`),`第${i}个文件 测试内容\n`,"utf8");
+const idx=indexFor(root,{cacheDir:path.join(root,"cache"),indexConcurrency:4});
+const progress=[];
+const r=await idx.sync({budget:100,onProgress:(p)=>progress.push(p)});
+console.log(JSON.stringify({documents:r.documents,ready:r.ready,pending:r.pending,workTotal:r.workTotal,processed:r.processed,progress:progress.slice(-3)},null,2));
+await fs.rm(root,{recursive:true,force:true});
