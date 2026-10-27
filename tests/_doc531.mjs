@@ -1,0 +1,14 @@
+﻿import fs from "node:fs";
+let p="README.md"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("- 版本：`0.5.30`","- 版本：`0.5.31`");
+c=c.replace("默认规则（可在设置里改）：\n\n- 强关联词单独命中文件数超过**直接命中文件数的 2 倍**；\n- 或超过**全库 20%**；","默认规则（可在设置里改）：\n\n- 强关联词允许填专名或**近义词/标准术语**；\n- **直接命中文件数 ≤ 5 时，下面两条 2 倍 / 20% 规则不启用**；\n- 直接命中 >5 时，强关联词单独命中文件数超过**直接命中文件数的 2 倍**；\n- 或超过**全库 20%**；");
+c=c.replace("「最终输出文件数」默认**全部**。有上限时按顺序保留：\n\n```text\n直接命中 → 自动扩展命中 → 仅强关联命中\n```","「最终输出文件数」默认**全部**。有上限时按顺序保留：\n\n```text\n直接命中 → 自动扩展命中 → 强关联命中 → 一般关联命中\n```");
+c=c.replace("### 3.5 自定义词表","### 3.5 一般关联词带入文件\n\n新增设置：**允许一般关联词带入文件**（默认关）。\n\n- 开启后：自动词表文件名额未满时，一般关联词可以补文件；\n- 文件名额和自动扩展共用「自动扩展输出·最多文件数」；\n- 优先自动词表，再一般关联；\n- 直接命中 = 0 且强关联命中 = 0 时，即使设置关闭，也会自动兜底带入，避免“空气除硫”这类 0 命中。\n\n兜底时文件上限为：\n\n```text\n强关联输出·最多文件数 + 自动扩展输出·最多文件数\n```\n\n（`all` 按 5000 处理，最后仍受最终输出上限约束。）\n\n### 3.6 自定义词表");
+c=c.replace("| 一般关联词 | 开 |","| 一般关联词 | 开 |\n| 允许一般关联词带入文件 | 关 |");
+fs.writeFileSync(p,c,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.31"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+let t=fs.readFileSync("tests/_static-audit.mjs","utf8");
+t=t.replace('ok(pkg.version === "0.5.30", "package.version 0.5.30");','ok(pkg.version === "0.5.31", "package.version 0.5.31");');
+t=t.replace('ok(keys.length === 32, "32 settings keys, got " + keys.length);','ok(keys.length === 33, "33 settings keys, got " + keys.length);');
+fs.writeFileSync("tests/_static-audit.mjs",t,"utf8");
+console.log("0.5.31 docs");

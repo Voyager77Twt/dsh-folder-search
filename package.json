@@ -1,6 +1,6 @@
 {
   "name": "dsh-folder-search",
-  "version": "0.5.27",
+  "version": "0.5.31",
   "description": "本地文件夹检索模式：在本地 Word / PDF / PPT / Excel 文件夹里按关键词检索并给出可打开的位置，读取完整题目，导出组卷 Word。",
   "type": "module",
   "license": "MIT",

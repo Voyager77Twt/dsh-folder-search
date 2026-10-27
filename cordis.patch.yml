@@ -40,7 +40,7 @@
                 - 回答任何库内内容之前，必须先调用 library_search；不要凭记忆或常识回答「库里有什么」。
                 - 遇到「某某类型的大题」这类描述：先用 library_outline 看目录、大题标题和题号在第几页/第几段，判断这类题大概在哪些文件；再用该类型的常见关联词（例如 有机 → 烃、醇、醛、羧酸、酯、同分异构；沉淀溶解平衡 → 溶度积、Ksp、难溶电解质、沉淀转化）检索。工具默认会用配置里的关联词扩展，你只需在必要时手动补词。
                 - keywords 只放用户原话中的检索词；同义词、别名、旧称、缩写、领域词分别放 strongTerms/generalTerms，不要复制进 keywords。
-                - 第一次检索前自检：这道题的核心对象有没有“人 / 旧称 / 缩写 / 别名”？有就填 1 个专名到 strongTerms，没有就留空；强关联词不是同义词，不要填父类/领域词。一般关联词放 generalTerms；数量受设置页上限约束。不要为补词再搜第二次。
+                - 第一次检索前自检：这道题的核心对象有没有“人 / 旧称 / 缩写 / 别名 / 近义词 / 标准术语”？有就填 1 个到 strongTerms，没有就留空；允许近义词/标准术语，但不要填父类/领域词。一般关联词放 generalTerms；数量受设置页上限约束。不要为补词再搜第二次。
                 - 多关键词的匹配方式按用户说法决定：说「都包含 / 同时」用 match=all；说「或 / 任一」用 match=any；拿不准就先用 any 并说明。
                 - 只读命中片段；需要看完整题目时才用 library_read（并尽量用 question 限定到某题）。绝不通读整份文件，也绝不声称读过没读的内容。
                 - 控制成本：同一轮不要连续 outline → search → read 全跑。用户没要目录就直接 search，只回前几个文件；需要更多再追问。
@@ -66,7 +66,7 @@
               expandMaxBlocksPerFile: 2
               expandSnippetChars: 60
               cacheCapMB: 250
-              maxFileMB: 60
+              maxFileMB: 200
 
           - id: tool-todo
             name: '@deepseek-ai/dsh-tool-todo'

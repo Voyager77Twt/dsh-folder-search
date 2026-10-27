@@ -1,0 +1,12 @@
+﻿import fs from "node:fs";
+let p="README.md"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("- 版本：`0.5.27`","- 版本：`0.5.28`");
+c=c.replace("| 建库并发数 | 3（1–8） |","| 建库并发数 | 3（1–8） |\n| 单文件上限 | 200 MB |");
+c=c.replace("旧版 `.doc/.rtf` 会先用一个 Word 会话批量转 PDF，再并行抽取；`.docx/.pdf/.xlsx` 等按「建库并发数」并行。","旧版 `.doc/.rtf` 会先用一个 Word 会话批量转 PDF，再并行抽取；`.docx/.pdf/.xlsx` 等按「建库并发数」并行。单文件超过「单文件上限」会跳过；大型图片汇编 docx 可调到 200–500 MB。");
+fs.writeFileSync(p,c,"utf8");
+let t=fs.readFileSync("tests/_static-audit.mjs","utf8");
+t=t.replace('ok(pkg.version === "0.5.27", "package.version 0.5.27");','ok(pkg.version === "0.5.28", "package.version 0.5.28");');
+t=t.replace('ok(keys.length === 31, "31 settings keys, got " + keys.length);','ok(keys.length === 32, "32 settings keys, got " + keys.length);');
+fs.writeFileSync("tests/_static-audit.mjs",t,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.28"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+console.log("0.5.28 docs");

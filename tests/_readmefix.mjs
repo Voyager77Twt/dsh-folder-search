@@ -1,5 +1,6 @@
 ﻿import fs from "node:fs";
-let r=fs.readFileSync("README.md","utf8");
-r=r.replace("先在 DSH 里装好本仓库（`fan20071202` 换成实际 GitHub 用户名）：","先在 DSH 里装好本仓库：");
-fs.writeFileSync("README.md",r,"utf8");
-console.log("readme wording fixed");
+let p="README.md"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("git tag v0.5.18\n","git tag v0.5.27\n");
+c=c.replace("git push origin v0.5.18\n","git push origin v0.5.27\n");
+fs.writeFileSync(p,c,"utf8");
+console.log("readme version examples");

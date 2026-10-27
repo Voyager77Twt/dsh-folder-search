@@ -1,0 +1,17 @@
+﻿import fs from "node:fs";
+let p="lib/settings-host.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("const pendingLegacy = await collectPendingLegacy(index, 60, skip);","const pendingLegacy = await collectPendingLegacy(index, 20, skip);");
+c=c.replace("job.last = { ...job.last, phase: 'legacy', legacyPending: pendingLegacy.length, legacyConverted };","job.last = { ...job.last, phase: 'legacy', legacyPending: pendingLegacy.length, legacyConverted, legacyCurrent: pendingLegacy[0]?.rel || null };");
+c=c.replace("        job.last = { ...job.last, ...progress, phase: 'sync', legacyConverted };","        job.last = { ...job.last, ...progress, phase: 'sync', legacyConverted, legacyCurrent: null };");
+c=c.replace("job.last = { ...summarizeSync(result), phase: 'sync', legacyConverted };","job.last = { ...summarizeSync(result), phase: 'sync', legacyConverted, legacyCurrent: null };");
+fs.writeFileSync(p,c,"utf8");
+p="lib/index.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("description: '每批预转换多少个旧版 .doc/.rtf（默认 40）。'","description: '每批预转换多少个旧版 .doc/.rtf（默认 20）。'");
+c=c.replace("const limit = Math.max(5, Math.min(Number(args?.legacyBatch ?? 40), 120));","const limit = Math.max(5, Math.min(Number(args?.legacyBatch ?? 20), 120));");
+fs.writeFileSync(p,c,"utf8");
+p="lib/client.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("const indexLabel = !idx ? '读取中…' : idx.phase === 'legacy' ? '旧版 Office 转换中…' : idx.running ? '建库中…' : idx.pending > 0 ? ('待建 ' + idx.pending + ' 个文件') : idx.failed > 0 ? ('已建 ' + (idx.ready || 0) + ' 个，失败 ' + idx.failed + ' 个') : '已就绪';","const indexLabel = !idx ? '读取中…' : idx.phase === 'legacy' ? `旧版转换中：已转 ${idx.legacyConverted || 0}，本批 ${idx.legacyPending || 0} 个${idx.legacyCurrent ? '（' + String(idx.legacyCurrent).split('/').pop() + '）' : ''}` : idx.running ? '建库中…' : idx.pending > 0 ? ('待建 ' + idx.pending + ' 个文件') : idx.failed > 0 ? ('已建 ' + (idx.ready || 0) + ' 个，失败 ' + idx.failed + ' 个') : '已就绪';");
+fs.writeFileSync(p,c,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.30"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+fs.writeFileSync("README.md",fs.readFileSync("README.md","utf8").replace("- 版本：`0.5.29`","- 版本：`0.5.30`").replace("每批 60 个","每批 20 个"),"utf8");
+console.log("AC changes: batch 20 + status");

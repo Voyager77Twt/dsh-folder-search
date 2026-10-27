@@ -23,7 +23,7 @@ ok(true, "lib/*.js syntax");
 // 2 package
 const pkg = JSON.parse(fs.readFileSync(root + "/package.json", "utf8"));
 ok(pkg.name === "dsh-folder-search", "package.name");
-ok(pkg.version === "0.5.27", "package.version 0.5.27");
+ok(pkg.version === "0.5.31", "package.version 0.5.31");
 ok(pkg.dsh?.bundle?.patch === "./cordis.patch.yml", "dsh.bundle.patch");
 ok(pkg.dsh?.client?.platform === "web", "dsh.client web");
 ok(pkg.exports?.["./client"] && pkg.exports?.["./settings-host"], "exports client/settings-host");
@@ -42,7 +42,7 @@ ok(host?.config?.settingsOnly === true, "settingsOnly true");
 
 // 4 keys + UI/static
 const keys = Object.keys(DEFAULT_SETTINGS);
-ok(keys.length === 31, "31 settings keys, got " + keys.length);
+ok(keys.length === 33, "33 settings keys, got " + keys.length);
 const searchText = fs.readFileSync(root + "/lib/search.js", "utf8") + fs.readFileSync(root + "/lib/outline.js", "utf8") + fs.readFileSync(root + "/lib/index.js", "utf8") + fs.readFileSync(root + "/lib/settings-host.js", "utf8");
 const clientText = fs.readFileSync(root + "/lib/client.js", "utf8");
 const missingSearch = keys.filter((key) => !searchText.includes("settings." + key) && !searchText.includes("settings?." + key));
@@ -73,7 +73,7 @@ for (const dedupe of [true, false]) {
   ok(r.files.length === r.totals.shownFiles, "shownFiles matches files dedupe=" + dedupe);
   ok(r.totals.directFiles + r.totals.expandedFiles + r.totals.relatedFiles === r.totals.files, "category totals sum dedupe=" + dedupe);
   const text = renderSearchResult(r);
-  ok(text.includes("**直接命中（原词）**") && text.includes("**自动扩展命中**") && text.includes("**仅强关联命中**"), "three sections dedupe=" + dedupe);
+  ok(text.includes("**直接命中（原词）**") && text.includes("**自动扩展命中**") && text.includes("**强关联命中**"), "three sections dedupe=" + dedupe);
   if (dedupe) ok(r.files.filter((f) => f.directKeywords?.length).length === r.totals.directFiles, "direct files not lost");
 }
 const custom = await searchLibrary(idx, { keywords: ["沉淀溶解平衡"], refresh: "never" }, cfg, { ...settings, associationLimit: 2, customAssociations: { 沉淀溶解平衡: ["Ksp"] } });
