@@ -1,0 +1,11 @@
+﻿import fs from "node:fs";
+let p="README.md"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("- 版本：`0.5.31`","- 版本：`0.5.32`");
+c=c.replace("| 强关联词上限 | 1 | 每次最多使用几个强关联词。默认 1；不建议一次放很多宽泛词。 |","| 强关联词上限 | 2 | 每次最多使用几个强关联词。默认 2；人名、旧称、别名、缩写、近义词、标准术语优先放这里。 |");
+c=c.replace("强关联词由模型在第一次检索前自检后给出。允许：","强关联词由模型在第一次检索前自检后给出。**人名、旧称、别名、缩写、近义词、标准术语优先放 strongTerms**；一般关联词只放广领域/上下文词。允许：");
+c=c.replace("一般关联词默认是“段落补充器”，不是“文件发现器”，所以“纯碱”这类泛词不会单独带出大量无关文件。只有开启或零命中兜底时才会带文件。","一般关联词默认是“段落补充器”，不是“文件发现器”，所以“纯碱”这类泛词不会单独带出大量无关文件。只有开启或零命中兜底时才会带文件。\n\n人名、别名、近义词不要放这里，应放强关联词；否则分类会变成“一般关联”，不再享受强关联的单独文件输出。");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.32"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+let t=fs.readFileSync("tests/_static-audit.mjs","utf8");
+t=t.replace('ok(pkg.version === "0.5.31", "package.version 0.5.31");','ok(pkg.version === "0.5.32", "package.version 0.5.32");');
+fs.writeFileSync("tests/_static-audit.mjs",t,"utf8");
+console.log("0.5.32 docs");
