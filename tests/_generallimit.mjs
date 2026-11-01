@@ -1,0 +1,15 @@
+﻿import fs from "node:fs";
+let p="lib/settings-store.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("  associationLimit: 4,","  associationLimit: 4,\n  generalLimit: 4,");
+c=c.replace("  base.associationLimit = integer(source.associationLimit, 1, 8, base.associationLimit);","  base.associationLimit = integer(source.associationLimit, 1, 8, base.associationLimit);\n  base.generalLimit = integer(source.generalLimit, 0, 8, integer(source.associationLimit, 1, 8, base.associationLimit));");
+fs.writeFileSync(p,c,"utf8");
+p="lib/search.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("  const generalTerms = settings.enableGeneral === false ? [] : (Array.isArray(args.generalTerms) ? args.generalTerms : []).map((term) => String(term).trim()).filter(Boolean).slice(0, Number(settings.associationLimit ?? 4));","  const generalTerms = settings.enableGeneral === false ? [] : (Array.isArray(args.generalTerms) ? args.generalTerms : []).map((term) => String(term).trim()).filter(Boolean).slice(0, Number(settings.generalLimit ?? settings.associationLimit ?? 4));");
+c=c.replace("    next.associationLimit = Math.max(Number(next.associationLimit ?? 4), 8);","    next.associationLimit = Math.max(Number(next.associationLimit ?? 4), 8);\n    next.generalLimit = 8;");
+fs.writeFileSync(p,c,"utf8");
+p="lib/client.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("h('span', { style: { fontSize: '13px' } }, '一般关联词'),","h('span', { style: { fontSize: '13px' } }, '一般关联词'),\n            h('span', { style: { ...label, minWidth: 'auto' } }, '数量'),\n            h('input', { type: 'number', min: 0, max: 8, style: input, value: num(settings.generalLimit ?? settings.associationLimit, 2), onChange: (e) => update({ generalLimit: Math.max(0, Math.min(8, num(e.target.value, 2))) }) }),");
+fs.writeFileSync(p,c,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.34"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+fs.writeFileSync("README.md",fs.readFileSync("README.md","utf8").replace("- 版本：`0.5.33`","- 版本：`0.5.34`"),"utf8");
+console.log("generalLimit setting");

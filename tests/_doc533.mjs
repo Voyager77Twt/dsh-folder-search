@@ -1,0 +1,11 @@
+﻿import fs from "node:fs";
+let p="README.md"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("- 版本：`0.5.32`","- 版本：`0.5.33`");
+c=c.replace("| 最终输出文件数 | 全部 |","| 搜索模式 | 默认搜索 |\n| 最终输出文件数 | 全部 |");
+fs.writeFileSync(p,c,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.33"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+let t=fs.readFileSync("tests/_static-audit.mjs","utf8");
+t=t.replace('ok(pkg.version === "0.5.32", "package.version 0.5.32");','ok(pkg.version === "0.5.33", "package.version 0.5.33");');
+t=t.replace('ok(keys.length === 33, "33 settings keys, got " + keys.length);','ok(keys.length === 34, "34 settings keys, got " + keys.length);');
+fs.writeFileSync("tests/_static-audit.mjs",t,"utf8");
+console.log("0.5.33 docs");

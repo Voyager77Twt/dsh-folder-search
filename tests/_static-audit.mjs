@@ -23,7 +23,7 @@ ok(true, "lib/*.js syntax");
 // 2 package
 const pkg = JSON.parse(fs.readFileSync(root + "/package.json", "utf8"));
 ok(pkg.name === "dsh-folder-search", "package.name");
-ok(pkg.version === "0.5.32", "package.version 0.5.32");
+ok(pkg.version === "0.5.36", "package.version 0.5.36");
 ok(pkg.dsh?.bundle?.patch === "./cordis.patch.yml", "dsh.bundle.patch");
 ok(pkg.dsh?.client?.platform === "web", "dsh.client web");
 ok(pkg.exports?.["./client"] && pkg.exports?.["./settings-host"], "exports client/settings-host");
@@ -42,10 +42,10 @@ ok(host?.config?.settingsOnly === true, "settingsOnly true");
 
 // 4 keys + UI/static
 const keys = Object.keys(DEFAULT_SETTINGS);
-ok(keys.length === 33, "33 settings keys, got " + keys.length);
+ok(keys.length === 35, "35 settings keys, got " + keys.length);
 const searchText = fs.readFileSync(root + "/lib/search.js", "utf8") + fs.readFileSync(root + "/lib/outline.js", "utf8") + fs.readFileSync(root + "/lib/index.js", "utf8") + fs.readFileSync(root + "/lib/settings-host.js", "utf8");
 const clientText = fs.readFileSync(root + "/lib/client.js", "utf8");
-const missingSearch = keys.filter((key) => !searchText.includes("settings." + key) && !searchText.includes("settings?." + key));
+const missingSearch = keys.filter((key) => !searchText.includes("settings." + key) && !searchText.includes("settings?." + key) && !searchText.includes("effective." + key));
 const missingClient = keys.filter((key) => !clientText.includes(key));
 ok(missingSearch.length === 0, "all settings used by search: " + missingSearch.join(","));
 ok(missingClient.length === 0, "all settings present in client: " + missingClient.join(","));

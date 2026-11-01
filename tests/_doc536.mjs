@@ -1,0 +1,10 @@
+﻿import fs from "node:fs";
+let r=fs.readFileSync("README.md","utf8");
+r=r.replace("- 版本：`0.5.35`","- 版本：`0.5.36`");
+r=r.replace("### 3.6 自定义词表\n\n设置页第 4 步下方。默认、全面、自定义模式都会使用自定义词表；原词搜索不使用。：","### 3.6 自定义词表\n\n设置页模式下方的独立「自定义词表」卡片。默认、全面、自定义模式都会显示并使用；原词搜索不显示、不使用。");
+fs.writeFileSync("README.md",r,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.36"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+let t=fs.readFileSync("tests/_static-audit.mjs","utf8");
+t=t.replace('ok(pkg.version === "0.5.35", "package.version 0.5.35");','ok(pkg.version === "0.5.36", "package.version 0.5.36");');
+fs.writeFileSync("tests/_static-audit.mjs",t,"utf8");
+console.log("0.5.36 custom visible");

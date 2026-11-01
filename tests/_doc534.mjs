@@ -1,0 +1,13 @@
+﻿import fs from "node:fs";
+let p="README.md"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("- 版本：`0.5.33`","- 版本：`0.5.34`");
+c=c.replace("| 全面搜索 | 原词 + 强关联（最多 4 个）+ 自动词表（最多 8 个词）+ 一般关联全部开启；放开关联文件上限和最终输出上限，一般关联词也可以带入文件。输出可能很大。 |","| 全面搜索 | 原词 + 强关联（最多 4 个）+ 自动词表（最多 8 个词）+ 一般关联（最多 8 个词）全部开启；放开关联文件上限和最终输出上限，一般关联词也可以带入文件。输出可能很大。 |");
+c=c.replace("| 关联词数量上限 | 4 | 每个关键词最多几个扩展词（不含原词），自动词表和一般关联共用这个数量。 |","| 关联词数量上限 | 4 | 自动词表每个关键词最多几个扩展词（不含原词）。只控制自动词表；一般关联词数量在下一步单独设置。 |");
+c=c.replace("| 一般关联词 | 开 | 是否接受模型给出的 `generalTerms`。关闭后模型补充的一般关联词不参与检索。 |","| 一般关联词 | 开 | 是否接受模型给出的 `generalTerms`。关闭后模型补充的一般关联词不参与检索。 |\n| 一般关联词数量上限 | 4 | 一般关联词最多取几个，0–8。0 等于不接收一般关联词；与自动词表数量上限独立。 |");
+fs.writeFileSync(p,c,"utf8");
+let t=fs.readFileSync("tests/_static-audit.mjs","utf8");
+t=t.replace('ok(pkg.version === "0.5.33", "package.version 0.5.33");','ok(pkg.version === "0.5.34", "package.version 0.5.34");');
+t=t.replace('ok(keys.length === 34, "34 settings keys, got " + keys.length);','ok(keys.length === 35, "35 settings keys, got " + keys.length);');
+fs.writeFileSync("tests/_static-audit.mjs",t,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.34"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+console.log("0.5.34 docs");
