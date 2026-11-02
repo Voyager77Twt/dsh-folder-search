@@ -1,0 +1,14 @@
+﻿import fs from "node:fs";
+let p="lib/client.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("h('p', { style: title }, '搜索步骤（按顺序执行，可单独关闭）'),","h('p', { style: title }, '搜索模式'),");
+fs.writeFileSync(p,c,"utf8");
+let r=fs.readFileSync("README.md","utf8");
+r=r.replace("- 版本：`0.5.37`","- 版本：`0.5.38`");
+r=r.replace("「搜索步骤」最上面有四个预设：","「搜索模式」卡片最上面有四个预设：");
+r=r.replace("设置页「搜索步骤」","设置页「搜索模式」");
+fs.writeFileSync("README.md",r,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.38"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+let t=fs.readFileSync("tests/_static-audit.mjs","utf8");
+t=t.replace('ok(pkg.version === "0.5.37", "package.version 0.5.37");','ok(pkg.version === "0.5.38", "package.version 0.5.38");');
+fs.writeFileSync("tests/_static-audit.mjs",t,"utf8");
+console.log("heading changed");
