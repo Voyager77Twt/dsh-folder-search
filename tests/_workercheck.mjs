@@ -1,0 +1,10 @@
+﻿import path from "node:path";
+import { extractFileIsolated } from "../lib/parse-isolate.js";
+import { loadSettings } from "../lib/settings-store.js";
+import { indexFor } from "../lib/indexer.js";
+const s=await loadSettings();
+const idx=indexFor(s.libraryRoot,{cacheDir:s.cacheDir||undefined,maxFileMB:s.maxFileMB});
+const files=await idx.walk();
+const doc=files.find(f=>f.toLowerCase().endsWith('.docx'));
+const r=await extractFileIsolated(doc,'.docx',{maxFileMB:s.maxFileMB,security:s,officeAllowMacros:false,workerMaxMB:256});
+console.log('worker ok',r.blocks.length,r.chars);

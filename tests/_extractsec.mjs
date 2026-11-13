@@ -1,0 +1,11 @@
+﻿import path from "node:path";
+import { loadSettings } from "../lib/settings-store.js";
+import { extractFile } from "../lib/extract.js";
+import { indexFor } from "../lib/indexer.js";
+const s=await loadSettings();
+const idx=indexFor(s.libraryRoot,{cacheDir:s.cacheDir||undefined,maxFileMB:s.maxFileMB});
+const files=await idx.walk();
+const doc=files.find(f=>f.toLowerCase().endsWith('.docx'));
+console.log('doc',doc);
+const r=await extractFile(doc,'.docx',{maxFileMB:s.maxFileMB,security:s,officeAllowMacros:false});
+console.log('ok',r.blocks.length,r.chars);

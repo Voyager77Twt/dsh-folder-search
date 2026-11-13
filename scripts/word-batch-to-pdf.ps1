@@ -1,4 +1,5 @@
 param(
+  [switch]$AllowMacros,
   [Parameter(Mandatory = $true)][string]$ListPath,
   [Parameter(Mandatory = $true)][string]$OutDir
 )
@@ -15,6 +16,8 @@ try {
   $word = New-Object -ComObject Word.Application
   $word.Visible = $false
   $word.DisplayAlerts = 0
+  if (-not $AllowMacros) { try { $word.AutomationSecurity = 3 } catch { } }
+  try { $word.Options.UpdateLinksAtOpen = $false } catch { }
   try { $word.Options.ConfirmConversions = $false } catch { }
   foreach ($item in $items) {
     $doc = $null

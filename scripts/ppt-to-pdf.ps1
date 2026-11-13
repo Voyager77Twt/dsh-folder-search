@@ -1,4 +1,5 @@
 param(
+  [switch]$AllowMacros,
   [Parameter(Mandatory = $true)][string]$InputPath,
   [Parameter(Mandatory = $true)][string]$OutputPath
 )
@@ -8,6 +9,7 @@ $ppt = $null
 $pres = $null
 try {
   $ppt = New-Object -ComObject PowerPoint.Application
+  if (-not $AllowMacros) { try { $ppt.AutomationSecurity = 3 } catch { } }
   # ppSaveAsPDF = 32
   $pres = $ppt.Presentations.Open($InputPath, $true, $false, $false)
   $pres.SaveAs($OutputPath, 32)

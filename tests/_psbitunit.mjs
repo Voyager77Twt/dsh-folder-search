@@ -1,0 +1,15 @@
+﻿import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+const temp=fs.mkdtempSync(path.join(os.tmpdir(),"psbit-"));
+const x86=path.join(temp,"Program Files (x86)");
+const x64=path.join(temp,"Program Files");
+const office=path.join(x86,"Microsoft Office","Office16");
+const sys=path.join(temp,"Windows");
+const ps32=path.join(sys,"SysWOW64","WindowsPowerShell","v1.0","powershell.exe");
+fs.mkdirSync(office,{recursive:true}); fs.mkdirSync(x64,{recursive:true}); fs.mkdirSync(path.dirname(ps32),{recursive:true});
+fs.writeFileSync(path.join(office,"WINWORD.EXE"),""); fs.writeFileSync(ps32,"");
+process.env.SystemRoot=sys; process.env.ProgramFiles=x64; process.env['ProgramFiles(x86)']=x86;
+const { powershellCommand }=await import("../lib/util.js");
+console.log(powershellCommand()===ps32 ? "PASS: chose SysWOW64 PowerShell" : "FAIL: "+powershellCommand());
+fs.rmSync(temp,{recursive:true,force:true});

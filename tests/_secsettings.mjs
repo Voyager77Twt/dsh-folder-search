@@ -1,0 +1,6 @@
+﻿import fs from "node:fs";
+let p="lib/settings-store.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("  matchScope: 'file',\n};","  matchScope: 'file',\n  zipMaxEntries: 5000,\n  zipMaxEntryMB: 64,\n  zipMaxTotalMB: 512,\n  zipMaxRatio: 200,\n  maxTextMB: 20,\n  parseIsolation: true,\n  parseWorkerMB: 256,\n  officeAllowMacros: false,\n};");
+c=c.replace("  if (source.matchScope === 'file' || source.matchScope === 'block') base.matchScope = source.matchScope;\n  return base;","  if (source.matchScope === 'file' || source.matchScope === 'block') base.matchScope = source.matchScope;\n  base.zipMaxEntries = integer(source.zipMaxEntries, 16, 20000, base.zipMaxEntries);\n  base.zipMaxEntryMB = integer(source.zipMaxEntryMB, 1, 1024, base.zipMaxEntryMB);\n  base.zipMaxTotalMB = integer(source.zipMaxTotalMB, 8, 4096, base.zipMaxTotalMB);\n  base.zipMaxRatio = integer(source.zipMaxRatio, 2, 1000, base.zipMaxRatio);\n  base.maxTextMB = integer(source.maxTextMB, 1, 200, base.maxTextMB);\n  if (typeof source.parseIsolation === 'boolean') base.parseIsolation = source.parseIsolation;\n  base.parseWorkerMB = integer(source.parseWorkerMB, 64, 1024, base.parseWorkerMB);\n  if (typeof source.officeAllowMacros === 'boolean') base.officeAllowMacros = source.officeAllowMacros;\n  return base;");
+fs.writeFileSync(p,c,"utf8");
+console.log("security settings defaults");

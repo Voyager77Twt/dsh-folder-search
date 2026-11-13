@@ -1,4 +1,5 @@
 param(
+  [switch]$AllowMacros,
   [Parameter(Mandatory = $true)][string]$InputPath,
   [Parameter(Mandatory = $true)][string]$OutputPath,
   [int]$Format = 17
@@ -11,6 +12,8 @@ try {
   $word = New-Object -ComObject Word.Application
   $word.Visible = $false
   $word.DisplayAlerts = 0
+  if (-not $AllowMacros) { try { $word.AutomationSecurity = 3 } catch { } }
+  try { $word.Options.UpdateLinksAtOpen = $false } catch { }
   try { $word.Options.ConfirmConversions = $false } catch { }
   $doc = $word.Documents.Open($InputPath, $false, $true)
   $doc.SaveAs([ref]$OutputPath, [ref]$Format)

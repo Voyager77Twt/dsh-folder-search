@@ -1,0 +1,11 @@
+﻿import fs from "node:fs";
+let p="README.md"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("- 版本：`0.5.38`","- 版本：`0.5.39`");
+c=c.replace("`.doc` / `.ppt` / `.rtf` 转换需要 Windows + 本机 Office","`.doc` / `.ppt` / `.rtf` 转换需要 Windows + 本机 Office；已兼容 32 位 Office（自动使用 SysWOW64 PowerShell）");
+c=c.replace("### 当前题库的已知失败","### 32 位 Office 兼容\n\n如果本机只有 **32 位 Office**，插件会自动改用：\n\n```text\n%SystemRoot%\\SysWOW64\\WindowsPowerShell\\v1.0\\powershell.exe\n```\n\n避免 64 位 PowerShell 加载 32 位 Word/PowerPoint 类型库时出现 `0x80029C4A TYPE_E_CANTLOADLIBRARY`。本机同时存在 64 位 Office 时仍使用默认 `powershell.exe`。\n\n### 当前题库的已知失败");
+fs.writeFileSync(p,c,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.39"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+let t=fs.readFileSync("tests/_static-audit.mjs","utf8");
+t=t.replace('ok(pkg.version === "0.5.38", "package.version 0.5.38");','ok(pkg.version === "0.5.39", "package.version 0.5.39");');
+fs.writeFileSync("tests/_static-audit.mjs",t,"utf8");
+console.log("0.5.39 compatibility docs");
