@@ -10,7 +10,7 @@
 - 组卷导出 Word。
 
 - 包名：`dsh-folder-search`
-- 版本：`0.5.41`
+- 版本：`0.5.42`
 - 作者：七七（Voyager77Twt）
 - 许可：MIT
 - 兼容：DSH `>= 0.2.0-rc.2`，Node `>= 22.19`

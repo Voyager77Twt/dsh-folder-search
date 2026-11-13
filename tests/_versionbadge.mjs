@@ -1,0 +1,14 @@
+﻿import fs from "node:fs";
+let p="lib/settings-host.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("import fs from 'node:fs/promises';","import fs from 'node:fs/promises';\nimport fsSync from 'node:fs';");
+c=c.replace("const SETTINGS_ROUTE = '/api/dsh-folder-search/settings';","const PLUGIN_VERSION = (() => { try { return JSON.parse(fsSync.readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version; } catch { return ''; } })();\nconst SETTINGS_ROUTE = '/api/dsh-folder-search/settings';");
+c=c.replace("send(response, 200, { settings, defaults: DEFAULT_SETTINGS });","send(response, 200, { settings, defaults: DEFAULT_SETTINGS, version: PLUGIN_VERSION });");
+c=c.replace("send(response, 200, { settings, defaults: DEFAULT_SETTINGS, migration, buildQueued, buildError });","send(response, 200, { settings, defaults: DEFAULT_SETTINGS, migration, buildQueued, buildError, version: PLUGIN_VERSION });");
+fs.writeFileSync(p,c,"utf8");
+p="lib/client.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("      const [indexBusy, setIndexBusy] = React.useState(false);","      const [indexBusy, setIndexBusy] = React.useState(false);\n      const [pluginVersion, setPluginVersion] = React.useState('');");
+c=c.replace("            if (data.settings) {\n              setSettings(data.settings);","            if (data.settings) {\n              setSettings(data.settings);\n              if (data.version) setPluginVersion(String(data.version));");
+c=c.replace("        setSettings(data.settings);\n        setCustomText(assocTextOf(data.settings.customAssociations));","        setSettings(data.settings);\n        if (data.version) setPluginVersion(String(data.version));\n        setCustomText(assocTextOf(data.settings.customAssociations));");
+c=c.replace("        h('h2', { style: { fontSize: '17px', margin: 0 } }, '本地搜索设置'),","        h('h2', { style: { fontSize: '17px', margin: 0, display: 'flex', alignItems: 'baseline', gap: '8px' } },\n          '本地搜索设置',\n          pluginVersion ? h('span', { style: { fontSize: '11px', fontWeight: 400, opacity: 0.55 } }, 'v' + pluginVersion) : null,\n        ),");
+fs.writeFileSync(p,c,"utf8");
+console.log("version badge");
