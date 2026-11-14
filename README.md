@@ -1,5 +1,7 @@
 # 本地文件夹检索模式
 
+[中文](README.md) | [English](README.en.md)
+
 给 DSH 新建会话增加一个「本地文件夹检索模式」：在本地 Word / PDF / PPT / Excel 资料库中按关键词和关联词定位内容，回答**哪些文件、哪一页/段、题号是多少**；也可以读取完整内容、把库里的题目组一套新卷。
 
 设计目标是**泛用**：不绑定化学，也不绑定中文题库。中文、英文、各学科、非题目类文档都可以使用；学科词表只在模型显式选择 `subject` 时激活，默认层保持跨学科。
@@ -452,7 +454,7 @@ D:\题库\历史
 
 ```powershell
 node tests/_static-audit.mjs   # 基础静态审计
-node tests/detailed-static.mjs  # 详细静态/集成审计（102 项）
+node tests/detailed-static.mjs  # 详细静态/集成审计（119 项）
 pnpm pack                      # 生成 dsh-folder-search-<version>.tgz
 ```
 
