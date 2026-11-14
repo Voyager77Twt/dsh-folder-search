@@ -1,0 +1,14 @@
+﻿import fs from "node:fs";
+let p="lib/client.js"; let c=fs.readFileSync(p,"utf8");
+const oldNote="每行或逗号一个；留空关闭领域词降级。默认/全面/自定义模式都使用。默认只保留通用元词，化学或其他学科可自行追加。";
+const newNote="这里编辑第一层通用后缀；模型选择 subject 时自动追加该学科后缀。学科后缀只影响强关联降级，不会进入扩展词表。";
+c=c.split(oldNote).join(newNote);
+const trMarker="      if (EN[value]) return EN[value];\n      const patterns = [";
+const prefix=`      if (value.startsWith('索引缓存目录。留空使用默认')) return 'Index cache directory. Empty uses the default %LOCALAPPDATA%\\\\dsh-library-search; saving migrates and removes the old index when possible.';
+      if (value.startsWith('默认：%LOCALAPPDATA%')) return 'Default: %LOCALAPPDATA%\\\\dsh-library-search';
+      if (EN[value]) return EN[value];
+      const patterns = [`;
+if(!c.includes(trMarker)) throw new Error('tr marker missing');
+c=c.replace(trMarker,prefix);
+fs.writeFileSync(p,c,"utf8");
+console.log("note/tr fixes");

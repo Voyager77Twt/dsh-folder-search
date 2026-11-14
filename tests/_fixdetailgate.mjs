@@ -1,0 +1,15 @@
+﻿import fs from "node:fs";
+let p="tests/_detailed-static.mjs"; let c=fs.readFileSync(p,"utf8");
+const old=`const gate = await searchLibrary(idx, { keywords: ['侯氏制碱法'], strongTerms: ['侯德榜','纯碱','碳酸钠'], generalTerms: ['联合制碱'], refresh: 'never' }, cfg, { ...base, strongLimit: 2, strongGateMode: 'domain', strongGateSuffixes: ['题目','试题'] });
+check(Array.isArray(gate.strongGate?.kept) && gate.strongGate.kept.length === 2, 'gate keeps up to strongLimit terms', JSON.stringify(gate.strongGate));
+check(gate.strongGate?.demoted?.length === 1, 'gate demotes excess term', JSON.stringify(gate.strongGate));
+check(gate.files.every((f) => !(f.generalOnly && f.relatedOnly)), 'no general/strong category overlap');`;
+const neu=`const gate = await searchLibrary(idx, { keywords: ['侯氏制碱法'], strongTerms: ['侯德榜','纯碱'], generalTerms: ['联合制碱'], refresh: 'never' }, cfg, { ...base, strongLimit: 2, strongGateMode: 'domain', strongGateSuffixes: ['题目','试题'] });
+const gateTerms = new Set(gate.files.flatMap((f) => f.strongTerms || []));
+check(!gate.strongGate && gateTerms.has('侯德榜') && gateTerms.has('纯碱'), 'gate keeps both non-broad terms', JSON.stringify(gate.strongGate));
+const demoted = await searchLibrary(idx, { keywords: ['侯氏制碱法'], strongTerms: ['侯德榜','纯碱'], refresh: 'never' }, cfg, { ...base, strongLimit: 2, strongGateMode: 'files', strongGateFiles: 10 });
+check(demoted.strongGate?.kept?.length === 0 && demoted.strongGate?.demoted?.length === 2, 'gate demotes broad terms', JSON.stringify(demoted.strongGate));
+check(gate.files.every((f) => !(f.generalOnly && f.relatedOnly)), 'no general/strong category overlap');`;
+if(!c.includes(old)) throw new Error('test gate block missing'); c=c.replace(old,neu);
+fs.writeFileSync(p,c,"utf8");
+console.log("test gate adjusted");

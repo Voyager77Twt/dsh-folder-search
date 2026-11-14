@@ -23,7 +23,7 @@ ok(true, "lib/*.js syntax");
 // 2 package
 const pkg = JSON.parse(fs.readFileSync(root + "/package.json", "utf8"));
 ok(pkg.name === "dsh-folder-search", "package.name");
-ok(pkg.version === "0.5.42", "package.version 0.5.42");
+ok(pkg.version === "0.5.52", "package.version 0.5.52");
 ok(pkg.dsh?.bundle?.patch === "./cordis.patch.yml", "dsh.bundle.patch");
 ok(pkg.dsh?.client?.platform === "web", "dsh.client web");
 ok(pkg.exports?.["./client"] && pkg.exports?.["./settings-host"], "exports client/settings-host");
@@ -42,7 +42,7 @@ ok(host?.config?.settingsOnly === true, "settingsOnly true");
 
 // 4 keys + UI/static
 const keys = Object.keys(DEFAULT_SETTINGS);
-ok(keys.length === 43, "43 settings keys, got " + keys.length);
+ok(keys.length === 45, "45 settings keys, got " + keys.length);
 const searchText = fs.readFileSync(root + "/lib/search.js", "utf8") + fs.readFileSync(root + "/lib/outline.js", "utf8") + fs.readFileSync(root + "/lib/index.js", "utf8") + fs.readFileSync(root + "/lib/settings-host.js", "utf8");
 const clientText = fs.readFileSync(root + "/lib/client.js", "utf8");
 const missingSearch = keys.filter((key) => !searchText.includes("settings." + key) && !searchText.includes("settings?." + key) && !searchText.includes("effective." + key));
@@ -67,18 +67,18 @@ ok(routes.length === 2 && routes.map((r) => r.path).includes('/api/dsh-folder-se
 const cfg = { libraries: [lib], rgPath: "D:/AI/deepseek-harness/DSH Desktop/resources/app.asar.unpacked/node_modules/@vscode/ripgrep-win32-x64/bin/rg.exe", associations: { 沉淀溶解平衡: ["溶度积", "Ksp", "难溶电解质", "沉淀转化"] } };
 const settings = await loadSettings();
 const idx = indexFor(lib, cfg);
-const baseArgs = { keywords: ["侯氏制碱法"], strongTerms: ["侯德榜"], generalTerms: ["联合制碱", "索尔维", "碳酸钠"], refresh: "never" };
+const baseArgs = { keywords: ["侯氏制碱法"], strongTerms: ["侯德榜"], generalTerms: ["联合制碱", "索尔维", "碳酸钠"], refresh: "never", all: true };
 for (const dedupe of [true, false]) {
-  const r = await searchLibrary(idx, baseArgs, cfg, { ...settings, dedupe });
+  const r = await searchLibrary(idx, baseArgs, cfg, { ...settings, dedupe, searchMode: 'custom' });
   ok(r.files.length === r.totals.shownFiles, "shownFiles matches files dedupe=" + dedupe);
-  ok(r.totals.directFiles + r.totals.expandedFiles + r.totals.relatedFiles === r.totals.files, "category totals sum dedupe=" + dedupe);
+  ok(r.totals.directFiles + r.totals.expandedFiles + r.totals.relatedFiles + r.totals.generalFiles === r.totals.files, "category totals sum dedupe=" + dedupe);
   const text = renderSearchResult(r);
   ok(text.includes("**直接命中（原词）**") && text.includes("**自动扩展命中**") && text.includes("**强关联命中**"), "three sections dedupe=" + dedupe);
   if (dedupe) ok(r.files.filter((f) => f.directKeywords?.length).length === r.totals.directFiles, "direct files not lost");
 }
 const custom = await searchLibrary(idx, { keywords: ["沉淀溶解平衡"], refresh: "never" }, cfg, { ...settings, associationLimit: 2, customAssociations: { 沉淀溶解平衡: ["Ksp"] } });
 ok(JSON.stringify(custom.query.expanded["沉淀溶解平衡"]) === JSON.stringify(["沉淀溶解平衡", "Ksp", "溶度积"]), "custom term priority");
-const final10 = await searchLibrary(idx, { keywords: ["沉淀溶解平衡"], refresh: "never" }, cfg, { ...settings, finalMaxFiles: 10, dedupe: false });
+const final10 = await searchLibrary(idx, { keywords: ["沉淀溶解平衡"], refresh: "never" }, cfg, { ...settings, searchMode: 'custom', finalMaxFiles: 10, dedupe: false });
 ok(final10.files.length === 10 && final10.files.every((f) => (f.directKeywords?.length ?? 0) > 0), "finalMax keeps direct first");
 
 console.log(JSON.stringify({ ok: failures.length === 0, failures, passCount: notes.length, notes }, null, 2));

@@ -1,0 +1,12 @@
+﻿import fs from "node:fs";
+let p="lib/client.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("onChange: (e) => update({ normalMaxFiles: e.target.checked ? 'all' : 25 })","onChange: (e) => update({ normalMaxFiles: e.target.checked ? 'all' : 12 })");
+c=c.replace("value: allFiles ? '' : num(settings.normalMaxFiles, 25)","value: allFiles ? '' : num(settings.normalMaxFiles, 12)");
+c=c.replace("value: num(settings.normalMaxBlocksPerFile, 4)","value: num(settings.normalMaxBlocksPerFile, 2)");
+c=c.replace("onChange: (e) => update({ expandMaxFiles: e.target.checked ? 'all' : 20 })","onChange: (e) => update({ expandMaxFiles: e.target.checked ? 'all' : 6 })");
+c=c.replace("value: assocAll ? '' : num(settings.expandMaxFiles, 20)","value: assocAll ? '' : num(settings.expandMaxFiles, 6)");
+c=c.replace("onChange: (e) => update({ finalMaxFiles: e.target.checked ? 'all' : 60 })","onChange: (e) => update({ finalMaxFiles: e.target.checked ? 'all' : 20 })");
+c=c.replace("value: finalAll ? '' : num(settings.finalMaxFiles, 60)","value: finalAll ? '' : num(settings.finalMaxFiles, 20)");
+c=c.replace("onChange: (e) => update({ finalMaxFiles: num(e.target.value, 75) })","onChange: (e) => update({ finalMaxFiles: num(e.target.value, 20) })");
+fs.writeFileSync(p,c,"utf8");
+console.log("UI compact fallbacks");

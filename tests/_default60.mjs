@@ -1,0 +1,18 @@
+﻿import fs from "node:fs";
+let p="lib/settings-store.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("  finalMaxFiles: 'all',","  finalMaxFiles: 60,");
+fs.writeFileSync(p,c,"utf8");
+p="lib/client.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("onChange: (e) => update({ finalMaxFiles: e.target.checked ? 'all' : 75 })","onChange: (e) => update({ finalMaxFiles: e.target.checked ? 'all' : 60 })");
+c=c.replace("value: finalAll ? '' : num(settings.finalMaxFiles, 75)","value: finalAll ? '' : num(settings.finalMaxFiles, 60)");
+fs.writeFileSync(p,c,"utf8");
+let r=fs.readFileSync("README.md","utf8");
+r=r.replace("- 版本：`0.5.43`","- 版本：`0.5.44`");
+r=r.replace("| 最终输出文件数 | 全部 |","| 最终输出文件数 | 60 |");
+r=r.replace("「最终输出文件数」默认**全部**。有上限时按顺序保留：","「最终输出文件数」默认 **60**。有上限时按顺序保留：");
+fs.writeFileSync("README.md",r,"utf8");
+const pkg=JSON.parse(fs.readFileSync("package.json","utf8")); pkg.version="0.5.44"; fs.writeFileSync("package.json",JSON.stringify(pkg,null,2)+"\n","utf8");
+let t=fs.readFileSync("tests/_static-audit.mjs","utf8");
+t=t.replace('ok(pkg.version === "0.5.43", "package.version 0.5.43");','ok(pkg.version === "0.5.44", "package.version 0.5.44");');
+fs.writeFileSync("tests/_static-audit.mjs",t,"utf8");
+console.log("default final 60");

@@ -1,0 +1,10 @@
+﻿import { loadSettings, saveSettings } from "../lib/settings-store.js";
+import { indexFor } from "../lib/indexer.js";
+const s=await loadSettings();
+s.libraryRoot='D:\\AI\\work\\kw-search-mode\\fixtures\\选题';
+s.cacheDir='';
+await saveSettings(s);
+const t=await loadSettings();
+const idx=indexFor(t.libraryRoot,{cacheDir:t.cacheDir||undefined,maxFileMB:t.maxFileMB});
+const st=await idx.stats();
+console.log(JSON.stringify({root:t.libraryRoot,cache:idx.cacheDir,documents:st.documents,ready:st.ready,failed:st.failed}));

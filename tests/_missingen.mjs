@@ -1,0 +1,11 @@
+﻿import fs from "node:fs";
+const src=fs.readFileSync("lib/client.js","utf8");
+const start=src.indexOf("    const EN = ");
+const end=src.indexOf("\n    const isEnglish", start);
+const raw=src.slice(start+"    const EN = ".length,end);
+const en=JSON.parse(raw);
+const strings=[...new Set([...src.matchAll(/'([^'\\]*(?:\\.[^'\\]*)*)'/g)].map(x=>x[1]).filter(x=>/[\u4e00-\u9fff]/.test(x)))];
+const missing=strings.filter(s=>!en[s]);
+console.log('keys',Object.keys(en).length,'missing',missing.length);
+fs.writeFileSync(process.env.TEMP+"\\missing-en.txt",missing.join("\n"),"utf8");
+console.log(missing.slice(0,20).join("\n---\n"));

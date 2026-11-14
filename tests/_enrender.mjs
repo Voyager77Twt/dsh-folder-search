@@ -1,0 +1,17 @@
+﻿import { loadSettings } from "../lib/settings-store.js";
+const settings=await loadSettings();
+let factory=null; globalThis.window={__ModuleLoader__:{load(spec){factory=spec.factory;}}};
+let registered=null;
+const React={createElement(type,props,...children){return {type,props:props||{},children};},useState(initial){const values=[settings,null,'',false,'',null,false,'',''];const index=(React._hook=(React._hook??-1)+1);return [values[index]??initial,()=>{}];},useEffect(){},useCallback(fn){return fn;},useMemo(fn){return fn();},Fragment:'Fragment'};
+await import('../lib/client.js');
+const mod=factory((name)=>{if(name==='react') return React; throw new Error('require '+name);});
+const localeFace={getLocale:()=>({active:'en-US',locales:[],revision:1}),subscribe:()=>()=>{}};
+const ctx={get(name){return name==='locale'?localeFace:null;},slots:{inject(name,fn){fn();},register(def,component){registered={def,component};return()=>{};}}};
+mod.apply(ctx);
+React._hook=-1;
+const tree=registered.component();
+const strings=[]; const walk=(node)=>{ if(typeof node==='string') strings.push(node); else if(Array.isArray(node)) node.forEach(walk); else if(node&&node.children) node.children.forEach(walk); };
+walk(tree);
+console.log('title english:', strings.includes('Local Search Settings'));
+console.log('security english:', strings.includes('Security'));
+console.log('remaining chinese:', strings.filter(s=>/[\u4e00-\u9fff]/.test(s)).slice(0,8));

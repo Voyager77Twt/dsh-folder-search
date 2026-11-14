@@ -1,0 +1,10 @@
+﻿import { loadSettings, saveSettings } from "../lib/settings-store.js";
+const s=await loadSettings();
+s.libraryRoots=['D:\\AI\\work\\kw-search-mode\\fixtures\\选题'];
+s.libraryRoot=s.libraryRoots[0];
+s.normalMaxFiles=12; s.normalMaxBlocksPerFile=2;
+s.expandMaxFiles=6; s.expandMaxBlocksPerFile=2;
+s.strongMaxFiles=6; s.strongMaxBlocksPerFile=2;
+s.finalMaxFiles=20;
+await saveSettings(s);
+console.log('saved compact current settings');

@@ -1,6 +1,6 @@
 {
   "name": "dsh-folder-search",
-  "version": "0.5.42",
+  "version": "0.5.52",
   "description": "本地文件夹检索模式：在本地 Word / PDF / PPT / Excel 题库中按关键词和关联词定位文件、页码/段落与题号；支持四种搜索模式、自定义词表、零命中兜底、索引缓存、组卷导出，以及 ZIP/文本限制、解析隔离和 Office 宏防护。",
   "type": "module",
   "license": "MIT",

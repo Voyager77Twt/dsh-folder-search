@@ -1,0 +1,10 @@
+﻿import fs from "node:fs";
+let p="lib/settings-store.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("  libraryRoot: '',\n  cacheDir: '',","  libraryRoot: '',\n  libraryRoots: [],\n  cacheDir: '',");
+c=c.replace("function integer(value, min, max, fallback) {","export function normalizeLibraryRoots(value) {\n  const raw = Array.isArray(value) ? value : String(value ?? '').split(/[,，\\n]/);\n  const seen = new Set();\n  const out = [];\n  for (const item of raw) {\n    const root = String(item ?? '').trim();\n    if (!root) continue;\n    const key = root.toLowerCase();\n    if (seen.has(key)) continue;\n    seen.add(key);\n    out.push(root);\n    if (out.length >= 20) break;\n  }\n  return out;\n}\n\nfunction integer(value, min, max, fallback) {");
+const old="  base.libraryRoot = typeof source.libraryRoot === 'string' ? source.libraryRoot.trim() : base.libraryRoot;\n  base.cacheDir = typeof source.cacheDir === 'string' ? source.cacheDir.trim() : base.cacheDir;";
+const neu="  base.libraryRoots = normalizeLibraryRoots(source.libraryRoots !== undefined ? source.libraryRoots : (source.libraryRoot || base.libraryRoot));\n  base.libraryRoot = base.libraryRoots[0] || '';\n  base.cacheDir = typeof source.cacheDir === 'string' ? source.cacheDir.trim() : base.cacheDir;";
+if(!c.includes(old)) throw new Error('library sanitize marker missing');
+c=c.replace(old,neu);
+fs.writeFileSync(p,c,"utf8");
+console.log("libraryRoots setting");

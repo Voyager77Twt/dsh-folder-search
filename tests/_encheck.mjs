@@ -1,0 +1,2 @@
+﻿import fs from "node:fs";
+const src=fs.readFileSync("lib/client.js","utf8"); const start=src.indexOf("    const EN = "); const end=src.indexOf("\n    const isEnglish",start); const en=JSON.parse(src.slice(start+14,end).trim().replace(/;$/,'')); const strings=[...new Set([...src.matchAll(/'([^'\\]*(?:\\.[^'\\]*)*)'/g)].map(x=>x[1]).filter(x=>/[\u4e00-\u9fff]/.test(x)))]; console.log('missing',strings.filter(s=>!en[s]).length);
