@@ -1,0 +1,16 @@
+﻿import fs from "node:fs";
+let p="lib/indexer.js"; let c=fs.readFileSync(p,"utf8");
+const old=`      const previous = manifest.files[rel];
+      const same = previous && previous.mtimeMs === stat.mtimeMs && previous.size === stat.size;
+      if (same && !(options.retryErrors && previous.err)) continue;
+      const ext = path.extname(absPath).toLowerCase();
+      const kind = SUPPORTED.get(ext) ?? 'unknown';`;
+const neu=`      const previous = manifest.files[rel];
+      const ext = path.extname(absPath).toLowerCase();
+      const kind = SUPPORTED.get(ext) ?? 'unknown';
+      const reclassify = previous?.kind === 'name' && SUPPORTED.has(ext);
+      const same = previous && previous.mtimeMs === stat.mtimeMs && previous.size === stat.size && !reclassify;
+      if (same && !(options.retryErrors && previous.err)) continue;`;
+if(!c.includes(old)) throw new Error('indexer same marker'); c=c.replace(old,neu);
+fs.writeFileSync(p,c,"utf8");
+console.log("reclassify name-only archive entries");

@@ -29,20 +29,20 @@ for (const file of fs.readdirSync(path.join(root, 'lib')).filter((f) => f.endsWi
 check(fs.existsSync(path.join(root, 'lib', 'subject-dictionaries.js')), 'subject dictionaries file exists');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 check(pkg.name === 'dsh-folder-search', 'package name');
-check(pkg.version === '0.5.52', 'package version 0.5.52', pkg.version);
+check(pkg.version === '0.5.55', 'package version 0.5.55', pkg.version);
 check(pkg.dependencies?.['unpdf'] === '^2.1.0', 'unpdf upgraded');
 check(pkg.dependencies?.xlsx === '0.18.5', 'xlsx pinned');
 check(pkg.dependencies?.fflate === '0.8.2', 'fflate pinned');
 check(fs.existsSync(path.join(root, 'README.md')), 'README exists');
 const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
 includes(readme, '## 安全', 'README security section');
-includes(readme, '0.5.52', 'README version follows package');
+includes(readme, '0.5.55', 'README version follows package');
 includes(readme, '解析隔离', 'README parser isolation documented');
 check(!/^## .*安装/m.test(readme), 'README has no install section');
 
 // 2. settings shape and clamping
 const keys = Object.keys(DEFAULT_SETTINGS);
-check(keys.length === 45, '45 settings keys', String(keys.length));
+check(keys.length === 48, '48 settings keys', String(keys.length));
 for (const key of ['zipMaxEntries','zipMaxEntryMB','zipMaxTotalMB','zipMaxRatio','maxTextMB','parseIsolation','parseWorkerMB','officeAllowMacros','strongGateSuffixes']) check(key in DEFAULT_SETTINGS, 'security setting present: ' + key);
 check(DEFAULT_SETTINGS.finalMaxFiles === 30, 'default finalMaxFiles is 30');
 check(Array.isArray(DEFAULT_SETTINGS.strongGateSuffixes), 'suffix default is array');
@@ -260,6 +260,39 @@ try {
     check(isolated.blocks.length > 0, 'worker isolation extracts');
   }
 } finally { fs.rmSync(temp, { recursive: true, force: true }); }
+
+// 8b. ZIP archive member indexing
+const archiveDir = fs.mkdtempSync(path.join(os.tmpdir(), 'folder-search-archive-test-'));
+try {
+  const fixtureDocx = path.join(library, '模拟试题', '2025届高三资料', '2025二模原题分类汇编', '2025二模分类汇编——原理大题.docx');
+  if (fs.existsSync(fixtureDocx)) {
+    const docBuf = fs.readFileSync(fixtureDocx);
+    const archivePath = path.join(archiveDir, 'archive.zip');
+    fs.writeFileSync(archivePath, Buffer.from(zipSync({
+      'folder/a.docx': docBuf,
+      '../evil.txt': strToU8('辛亥革命 武昌起义'),
+      'note.txt': strToU8('光合作用 卡尔文循环'),
+    })));
+    const beforeTemps = new Set(fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith('dsh-folder-search-archive-')));
+    const archive = await extractFile(archivePath, '.zip', { maxFileMB: 200, security: { archiveMaxDepth: 2, archiveTreeMaxEntries: 100, archiveTreeMaxMB: 100 } });
+    check(archive.blocks.length > 0, 'zip member text is indexed');
+    check(archive.blocks.some((block) => block.loc.member === 'folder/a.docx'), 'zip member label retained');
+    check(archive.blocks.some((block) => block.loc.member === 'evil.txt'), 'zip-slip member label is sanitized');
+    check(!archive.blocks.some((block) => String(block.loc.member).includes('..')), 'zip member labels do not expose traversal');
+    const afterTemps = fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith('dsh-folder-search-archive-'));
+    check(afterTemps.every((name) => beforeTemps.has(name)), 'zip temp directories are cleaned');
+    const nestedPath = path.join(archiveDir, 'nested.zip');
+    fs.writeFileSync(nestedPath, Buffer.from(zipSync({ 'inner.docx': docBuf })));
+    const outerPath = path.join(archiveDir, 'outer.zip');
+    fs.writeFileSync(outerPath, Buffer.from(zipSync({ 'nested.zip': fs.readFileSync(nestedPath) })));
+    const shallow = await extractFile(outerPath, '.zip', { maxFileMB: 200, security: { archiveMaxDepth: 1, archiveTreeMaxEntries: 100, archiveTreeMaxMB: 100 } });
+    check(!shallow.blocks.some((block) => String(block.loc.member).includes('inner.docx')), 'archive max depth stops nested extraction');
+  } else {
+    check(false, 'archive fixture docx exists');
+  }
+} finally {
+  fs.rmSync(archiveDir, { recursive: true, force: true });
+}
 
 // 9. Office/security scripts and worker wiring
 const legacySource = fs.readFileSync(path.join(root, 'lib', 'office-convert.js'), 'utf8');

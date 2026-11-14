@@ -1,0 +1,10 @@
+﻿import fs from "node:fs";
+let p="lib/extract.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("        const member = String(name).replace(/\\\\/g, '/').slice(0, 240);\n        for (const block of result.blocks || []) blocks.push({ ...block, loc: { ...block.loc, member } });","        const inner = String(name).replace(/\\\\/g, '/').slice(0, 240);\n        for (const block of result.blocks || []) {\n          const member = [inner, block.loc?.member].filter(Boolean).join(' > ').slice(0, 300);\n          blocks.push({ ...block, loc: { ...block.loc, member } });\n        }");
+fs.writeFileSync(p,c,"utf8");
+p="lib/search.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("export function locationLabel(loc) {\n  if (!loc || typeof loc !== 'object') return '未知位置';\n  switch (loc.k) {","export function locationLabel(loc) {\n  if (!loc || typeof loc !== 'object') return '未知位置';\n  const base = (() => switchBase(loc))();\n  return loc.member ? `压缩包：${loc.member} · ${base}` : base;\n}\nfunction switchBase(loc) {\n  switch (loc.k) {");
+c=c.replace("    default:\n      return JSON.stringify(loc);\n  }\n}","    case 'zip':\n      return '压缩包';\n    default:\n      return JSON.stringify(loc);\n  }\n}");
+c=c.replace("return ({ docx: 'Word', doc: 'DOC', pdf: 'PDF', pptx: 'PPT', ppt: 'PPT', xlsx: 'Excel', text: '文本', name: '仅文件名' })[kind] ?? kind;","return ({ docx: 'Word', doc: 'DOC', pdf: 'PDF', pptx: 'PPT', ppt: 'PPT', xlsx: 'Excel', text: '文本', zip: 'ZIP', name: '仅文件名' })[kind] ?? kind;");
+fs.writeFileSync(p,c,"utf8");
+console.log("archive labels");

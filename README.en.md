@@ -15,7 +15,7 @@ Design goal: **general-purpose**. It is not tied to chemistry or to Chinese-lang
 - Experimental paper export to Word.
 
 - Package: `dsh-folder-search`
-- Version: `0.5.52`
+- Version: `0.5.55`
 - Author: 七七 (Voyager77Twt)
 - License: MIT
 - Compatibility: DSH `>= 0.2.0-rc.2`, Node `>= 22.19`
@@ -343,7 +343,8 @@ Handling:
 | `.ppt` | Local PowerPoint → PDF, then full text |
 | `.xlsx` / `.xls` | Cell text (`Sheet!B12`) |
 | `.txt` / `.md` / `.csv` | Line by line |
-| `.rar` / `.zip` / images / video | File name only |
+| `.zip` | Extracts and indexes supported docx/pdf/pptx/xlsx/txt members; temp files are deleted, links point to the original zip |
+| `.rar` / `.7z` / images / video | File name only |
 
 ---
 
@@ -399,16 +400,29 @@ The plugin reads arbitrary Office/PDF/archive documents, so **library files must
 
 | Setting | Default | Purpose |
 |---|---:|---|
-| Max ZIP entries | 5000 | Entries allowed inside one docx/pptx/xlsx |
+| Max ZIP entries | 5000 | Entries allowed in one Office file or .zip archive |
 | Max entry size (MB) | 64 | Uncompressed size of one entry |
 | Max total extracted size (MB) | 512 | Total uncompressed size of one archive |
 | Max compression ratio | 200 | Extracted size / compressed size |
 | Max extracted text (MB) | 20 | Text characters retained per file; excess is truncated |
+| Max archive depth | 3 | Maximum nested extraction depth; deeper archives are skipped |
+| Nested tree max entries | 10000 | Total entries across one archive and all nested archives |
+| Nested tree extracted cap (MB) | 1024 | Total uncompressed size across one archive and all nested archives |
 | Parser isolation | on | Parse each file in a separate worker; crashes/OOM do not take down DSH |
 | Parser worker memory (MB) | 256 | V8 old-generation limit, not an absolute process limit |
 | Allow Office macros | off | Forces macros off and link updates off; enable only for a fully trusted library |
 
 Changes apply to newly extracted/re-extracted files; **already successful cached documents are not re-extracted automatically**. Clear the relevant cache and rebuild if needed.
+
+### ZIP Archives
+
+`.zip` files are safely extracted to a random temporary directory. Supported members are extracted, their text is written to the index cache, and temporary files are deleted in `finally`.
+
+- Search result links still point to the original `.zip`;
+- Location labels include the member path, e.g. “Archive: folder/a.docx · paragraph 12”;
+- Nested ZIPs are bounded by max depth and tree-wide entry/size budgets;
+- Corrupt or encrypted members are skipped without breaking others;
+- `.rar` / `.7z` remain file-name-only.
 
 ### Additional Protections
 
@@ -452,7 +466,7 @@ Changes apply to newly extracted/re-extracted files; **already successful cached
 
 ```powershell
 node tests/_static-audit.mjs    # basic static audit
-node tests/detailed-static.mjs  # detailed static/integration audit (119 checks)
+node tests/detailed-static.mjs  # detailed static/integration audit (125 checks)
 pnpm pack                       # build dsh-folder-search-<version>.tgz
 ```
 
