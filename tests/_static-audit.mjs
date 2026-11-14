@@ -23,7 +23,7 @@ ok(true, "lib/*.js syntax");
 // 2 package
 const pkg = JSON.parse(fs.readFileSync(root + "/package.json", "utf8"));
 ok(pkg.name === "dsh-folder-search", "package.name");
-ok(pkg.version === "0.5.55", "package.version 0.5.55");
+ok(pkg.version === "0.6.0-beta.1", "package.version 0.6.0-beta.1");
 ok(pkg.dsh?.bundle?.patch === "./cordis.patch.yml", "dsh.bundle.patch");
 ok(pkg.dsh?.client?.platform === "web", "dsh.client web");
 ok(pkg.exports?.["./client"] && pkg.exports?.["./settings-host"], "exports client/settings-host");

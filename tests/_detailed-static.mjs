@@ -29,14 +29,14 @@ for (const file of fs.readdirSync(path.join(root, 'lib')).filter((f) => f.endsWi
 check(fs.existsSync(path.join(root, 'lib', 'subject-dictionaries.js')), 'subject dictionaries file exists');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 check(pkg.name === 'dsh-folder-search', 'package name');
-check(pkg.version === '0.5.55', 'package version 0.5.55', pkg.version);
+check(pkg.version === '0.6.0-beta.1', 'package version 0.6.0-beta.1', pkg.version);
 check(pkg.dependencies?.['unpdf'] === '^2.1.0', 'unpdf upgraded');
 check(pkg.dependencies?.xlsx === '0.18.5', 'xlsx pinned');
 check(pkg.dependencies?.fflate === '0.8.2', 'fflate pinned');
 check(fs.existsSync(path.join(root, 'README.md')), 'README exists');
 const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
 includes(readme, '## 安全', 'README security section');
-includes(readme, '0.5.55', 'README version follows package');
+includes(readme, '0.6.0-beta.1', 'README version follows package');
 includes(readme, '解析隔离', 'README parser isolation documented');
 check(!/^## .*安装/m.test(readme), 'README has no install section');
 
