@@ -4,7 +4,7 @@
 
 Adds a **Local Folder Search** mode to new DSH sessions: locate content in local Word / PDF / PPT / Excel libraries by keywords and related terms, returning **which file, page/paragraph, and question number** contain a hit. It can also read full content and export a paper from selected questions.
 
-Design goal: **general-purpose**. It is not tied to chemistry or to Chinese-language libraries. Chinese, English, any subject, and non-question documents all work. Subject dictionaries are activated only when the model explicitly selects `subject`; the default layer stays cross-domain.
+Design goal: **general-purpose**. It is not tied to subject or to Chinese-language libraries. Chinese, English, any subject, and non-question documents all work. Subject dictionaries are activated only when the model explicitly selects `subject`; the default layer stays cross-domain.
 
 - Four search modes: Original, Default, Full, Custom;
 - General dictionary + optional nine-subject dictionaries + custom dictionary + strong/general terms, with zero-hit fallback;
