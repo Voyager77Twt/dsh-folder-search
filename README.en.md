@@ -6,25 +6,40 @@ Adds a **Local Folder Search** mode to new DSH sessions: locate content in local
 
 Design goal: **general-purpose**. It is not tied to subject or to Chinese-language libraries. Chinese, English, any subject, and non-question documents all work. Subject dictionaries are activated only when the model explicitly selects `subject`; the default layer stays cross-domain.
 
-* Four search modes: Original, Default, Full, Custom;
-* General dictionary + optional nine-subject dictionaries + custom dictionary + strong/general terms, with zero-hit fallback;
-* Works for people, terms, concepts, and general documents—not only exam questions;
-* Clickable hit locations; only necessary snippets are sent to the model;
-* Incremental text cache; legacy Office conversion; 32-bit Office support;
-* ZIP/extraction/text limits, parser-worker isolation, Office macros disabled by default;
-* Experimental paper export to Word.
-* Package: `dsh-folder-search`
-* Version: `0.6.0-beta.1`
-* Author: 七七 (Voyager77Twt)
-* License: MIT
-* Compatibility: DSH `>= 0.2.0-rc.2`, Node `>= 22.19`
-* `.doc` / `.ppt` / `.rtf` conversion needs Windows + local Office; 32-bit Office is supported via SysWOW64 PowerShell.
+- Four search modes: Original, Default, Full, Custom;
+- General dictionary + optional nine-subject dictionaries + custom dictionary + strong/general terms, with zero-hit fallback;
+- Works for people, terms, concepts, and general documents—not only exam questions;
+- Clickable hit locations; only necessary snippets are sent to the model;
+- Incremental text cache; legacy Office conversion; 32-bit Office support;
+- ZIP/extraction/text limits, parser-worker isolation, Office macros disabled by default;
+- Experimental paper export to Word.
+
+- Package: `dsh-folder-search`
+- Version: `0.6.0`
+- Author: 七七 (Voyager77Twt)
+- License: MIT
+- Release notes: [RELEASE-NOTES.md](RELEASE-NOTES.md)
+- Compatibility: DSH `>= 0.2.0-rc.2`, Node `>= 22.19`
+- `.doc` / `.ppt` / `.rtf` conversion needs Windows + local Office; 32-bit Office is supported via SysWOW64 PowerShell.
 
 Parsing and search are local. **Only hit snippets and locations enter the model context**, never whole files.
 
-\---
+---
 
 ## Quick Start
+
+> **0.6.0 release note**
+>
+> `0.6.0` is a milestone release; previous versions have already been publicly used. Core search, indexing, and paper export are usable, but testing is still recommended: parsing results, index behavior, APIs, and export formats may continue to change. Testing and feedback are welcome.
+>
+> Before using it on production or important material:
+>
+> - test against a copy of the library and keep a backup of the originals;
+> - back up the index directory and check disk space;
+> - the index cache contains extracted document text; protect its permissions and sensitive material;
+> - the first large index build can use significant CPU, memory, and disk; validate on a small subset first;
+> - manually verify search hits, question numbers, pages, and exported papers;
+> - when reporting issues, include version, file type, and reproduction steps; do not upload sensitive originals.
 
 1. Open Settings → **Local Search Settings**;
 2. Enter one or more absolute library paths under **Database and index location**;
@@ -39,7 +54,7 @@ Search for “Xinhai Revolution” and give me the files and locations.
 
 The path is needed only once. Later sessions read the configured libraries automatically.
 
-\---
+---
 
 ## Search Modes
 
@@ -81,7 +96,7 @@ By default each file lists at most 2 hits; when there are many files, only the f
 
 Only when the user explicitly says “list all / show every file” does the model pass `all=true` to open the file limit. Each file still lists at most 2 hits. Use `library\_read` for full text.
 
-\---
+---
 
 ## Database and Index Location
 
@@ -100,7 +115,7 @@ After saving:
 
 Index status API: `/api/dsh-folder-search/index` (GET status, POST `action=build`).
 
-\---
+---
 
 ## Result Types and Fallback
 
@@ -139,7 +154,7 @@ Fallback · general
 
 This handles cases where the original wording is absent but a standard term or synonym exists, avoiding repeated model searches.
 
-\---
+---
 
 ## Output Order
 
@@ -157,7 +172,7 @@ auto-expanded → general
 
 `finalMaxFiles` truncates after each category's own cap, so direct hits take priority.
 
-\---
+---
 
 ## Settings Reference
 
@@ -283,7 +298,7 @@ Within one tool call:
 
 Each enabled step runs once; step 10 follows its configured retry count.
 
-\---
+---
 
 ## Text Cache and Index
 
@@ -329,7 +344,7 @@ Handling:
 * Or keep the file and ignore the failure;
 * The failure list is retained in the index package.
 
-\---
+---
 
 ## Supported Formats
 
@@ -345,7 +360,7 @@ Handling:
 |`.zip`|Extracts and indexes supported docx/pdf/pptx/xlsx/txt members; temp files are deleted, links point to the original zip|
 |`.rar` / `.7z` / images / video|File name only|
 
-\---
+---
 
 ## Tools
 
@@ -360,7 +375,7 @@ Handling:
 |`library\_index\_export`|Export an index package as zip|
 |`library\_index\_import`|Import an index package with size/time validation|
 
-\---
+---
 
 ## Does the Cache Make Search Incomplete?
 
@@ -376,7 +391,7 @@ Remaining gaps:
 * Cache cap reached;
 * File changed but mtime and size unchanged (use `refresh: "force"`).
 
-\---
+---
 
 ## Security
 
@@ -448,7 +463,7 @@ Changes apply to newly extracted/re-extracted files; **already successful cached
 * Malicious documents can still influence model judgment via prompt injection;
 * Temp-directory symlink/TOCTOU edges are not fully eliminated.
 
-\---
+---
 
 ## Limitations
 
@@ -459,7 +474,7 @@ Changes apply to newly extracted/re-extracted files; **already successful cached
 * Paper export is experimental; verify questions and answers before use;
 * General-term fallback can bring many files; set strong/final output limits if needed.
 
-\---
+---
 
 ## Development
 
