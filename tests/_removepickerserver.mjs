@@ -1,0 +1,14 @@
+﻿import fs from "node:fs";
+let p="lib/settings-host.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("import os from 'node:os';\n","");
+c=c.replace("import { execFile } from 'node:child_process';\nimport { promisify } from 'node:util';\n","");
+c=c.replace("const PICK_ROUTE = '/api/dsh-folder-search/pick-folder';\nconst execFileAsync = promisify(execFile);\n","");
+const start=c.indexOf("async function pickFolder() {");
+const end=c.indexOf("export function apply(ctx) {",start);
+if(start<0||end<0) throw new Error('pickFolder block'); c=c.slice(0,start)+c.slice(end);
+const routeStart=c.indexOf("    const disposePicker = web.register({");
+const routeEnd=c.indexOf("\n    return () => {\n      disposeSettings();",routeStart);
+if(routeStart<0||routeEnd<0) throw new Error('picker route block'); c=c.slice(0,routeStart)+c.slice(routeEnd);
+c=c.replace("      disposePicker();\n","");
+fs.writeFileSync(p,c,"utf8");
+console.log("remove folder picker host");

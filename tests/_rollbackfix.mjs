@@ -1,0 +1,12 @@
+﻿import fs from "node:fs";
+let p="tests/_detailed-static.mjs"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("const values = [settings, null, '', '', '', '', false, false, mockIndexStatus, false, '', ''];","const values = [settings, null, '', '', '', '', false, mockIndexStatus, false, '', ''];");
+fs.writeFileSync(p,c,"utf8");
+fs.copyFileSync(p,"tests/detailed-static.mjs");
+p="lib/client.js"; c=fs.readFileSync(p,"utf8");
+const start=c.indexOf("    const EN = "); const end=c.indexOf("\n    const isEnglish",start);
+const en=JSON.parse(c.slice(start+"    const EN = ".length,end).trim().replace(/;$/,''));
+en['一个或多个题库文件夹的绝对路径，用逗号或换行分隔。例如：D:\\题库\\语文、D:\\题库\\数学。快速获取：资源管理器打开文件夹 → 点击地址栏 → Ctrl+C；或 Shift+右键文件夹 →“复制为路径”，去掉外层引号。每个题库单独建索引；删除其中一个不会影响其他题库的缓存。']='One or more absolute library folder paths, separated by commas or new lines. Example: D:\\题库\\语文, D:\\题库\\数学. Quick path: open the folder in Explorer, click the address bar, Ctrl+C; or Shift+right-click the folder and choose Copy as path, then remove surrounding quotes. Each library is indexed separately; removing one does not delete the others\' cache.';
+c=c.slice(0,start)+"    const EN = "+JSON.stringify(en,null,2)+";"+c.slice(end);
+fs.writeFileSync(p,c,"utf8");
+console.log("note translation/state fix");

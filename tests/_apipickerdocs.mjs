@@ -1,0 +1,14 @@
+﻿import fs from "node:fs";
+let p="README.md"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("插件通过 DSH Web Server 暴露两个本地接口：","插件通过 DSH Web Server 暴露三个本地接口：");
+c=c.replace("```text\n/api/dsh-folder-search/settings\n/api/dsh-folder-search/index\n```","```text\n/api/dsh-folder-search/settings\n/api/dsh-folder-search/index\n/api/dsh-folder-search/pick-folder\n```");
+c=c.replace("| 请求方法 | 设置接口只接受 GET/HEAD/POST；索引接口 GET 查状态，POST 只接受 `action=build` |","| 请求方法 | 设置接口只接受 GET/HEAD/POST；索引接口 GET 查状态，POST 只接受 `action=build`；选择文件夹接口只接受 POST |");
+c=c.replace("| 参数校验 | 索引 POST 会检查题库路径必须是已存在目录；其他设置走字段清洗 |","| 参数校验 | 索引 POST 会检查题库路径必须是已存在目录；其他设置走字段清洗；选择文件夹接口会打开本机原生目录对话框 |");
+fs.writeFileSync(p,c,"utf8");
+p="README.en.md"; c=fs.readFileSync(p,"utf8");
+c=c.replace("Two routes are exposed through the DSH Web Server:","Three routes are exposed through the DSH Web Server:");
+c=c.replace("```text\n/api/dsh-folder-search/settings\n/api/dsh-folder-search/index\n```","```text\n/api/dsh-folder-search/settings\n/api/dsh-folder-search/index\n/api/dsh-folder-search/pick-folder\n```");
+c=c.replace("| Methods | Settings: GET/HEAD/POST; Index: GET status, POST only `action=build` |","| Methods | Settings: GET/HEAD/POST; Index: GET status, POST only `action=build`; Folder picker: POST only |");
+c=c.replace("| Parameter checks | Index POST requires existing directories; settings fields are sanitized |","| Parameter checks | Index POST requires existing directories; settings fields are sanitized; the picker opens the native local folder dialog |");
+fs.writeFileSync(p,c,"utf8");
+console.log("API picker docs");

@@ -1,0 +1,15 @@
+﻿import fs from "node:fs";
+let p="lib/index.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("function resolveLibraries(args, config, settings = {}) {\n  const explicit = args?.library && String(args.library).trim();","function resolveLibraries(args, config, settings = {}) {\n  const explicit = args?.library && String(args.library).trim();\n  const allLibraries = args?.allLibraries === true;\n  const explicitList = !allLibraries && Array.isArray(args?.libraries) ? args.libraries.map((value) => String(value).trim()).filter(Boolean) : [];");
+c=c.replace("  const values = explicit ? [explicit] : configured;","  const values = allLibraries ? configured : explicitList.length ? explicitList : explicit ? [explicit] : configured;");
+c=c.replace("  library: { type: 'string', description: '题库根目录的绝对路径；省略时使用设置页题库位置或插件配置的第一个库。' },","  library: { type: 'string', description: '单个题库根目录的绝对路径；省略时使用设置页范围或插件配置。' },\n  libraries: { type: 'array', items: { type: 'string' }, description: '多选时传入用户选中的多个题库路径；与 library 二选一。' },");
+c=c.replace("  allLibraries: { type: 'boolean', description: '仅在多题库设置选择“搜索前询问我”且用户明确选择全部库时设为 true；其余情况省略。' },","  allLibraries: { type: 'boolean', description: '仅在多题库设置选择“搜索前询问我”且用户明确选择全部库时设为 true；其余情况省略。与 libraries 互斥。' },");
+c=c.replace("if (settings.librarySearchScope === 'ask' && indexes.length > 1 && !args?.library && args?.allLibraries !== true) {","if (settings.librarySearchScope === 'ask' && indexes.length > 1 && !args?.library && !(Array.isArray(args?.libraries) && args.libraries.length) && args?.allLibraries !== true) {");
+c=c.replace("            choices: [{ label: '全部库', value: 'all' }, ...libraries.map((library) => ({ label: library, value: library }))],","            multiSelect: true,\n            choices: [{ label: '全部库', value: 'all' }, ...libraries.map((library) => ({ label: library, value: library }))],");
+c=c.replace("              ...libraries.map((library) => '- ' + library),","              ...libraries.map((library) => '- ' + library),\n              '选择“全部库”时忽略其他选择；如果把所有库都选上，也会自动当作全部库。',");
+fs.writeFileSync(p,c,"utf8");
+let y=fs.readFileSync("cordis.patch.yml","utf8");
+const old="- 多题库且设置页搜索范围为「搜索前询问我」时，如果 library_search 返回 needsLibraryChoice=true，必须调用 ask_user_question，并把返回的 choices 中每一项的 label 作为选项（不要额外传 value）：第一项固定是“全部库”，其余每项是一个完整题库路径；不要让用户自己输入库名或路径。用户选“全部库”后传 allLibraries=true，选具体库时把该库路径传给 library。不要自行选库或跳过这个问题。";
+const neu="- 多题库且设置页搜索范围为「搜索前询问我」时，如果 library_search 返回 needsLibraryChoice=true，必须调用 ask_user_question，设置 multi_select=true，并把返回的 choices 中每一项的 label 作为选项（不要额外传 value）：第一项固定是“全部库”，其余每项是一个完整题库路径；不要让用户自己输入库名或路径。用户选“全部库”或把所有库都选上时传 allLibraries=true；只选一个具体库时传 library；选多个具体库时传 libraries 数组。不要让用户输入，也不要自行选库或跳过这个问题。";
+if(!y.includes(old)) throw new Error('prompt choice marker'); y=y.replace(old,neu); fs.writeFileSync("cordis.patch.yml",y,"utf8");
+console.log("multi-select libraries support");

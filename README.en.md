@@ -15,22 +15,21 @@ Design goal: **general-purpose**. It is not tied to subject or to Chinese-langua
 - Experimental paper export to Word.
 
 - Package: `dsh-folder-search`
-- Version: `0.6.0`
+- Version: `0.6.6`
 - Author: 七七 (Voyager77Twt)
 - License: MIT
-- Release notes: [RELEASE-NOTES.md](RELEASE-NOTES.md)
 - Compatibility: DSH `>= 0.2.0-rc.2`, Node `>= 22.19`
 - `.doc` / `.ppt` / `.rtf` conversion needs Windows + local Office; 32-bit Office is supported via SysWOW64 PowerShell.
 
-Parsing and search are local. **Only hit snippets and locations enter the model context**, never whole files.
+Parsing and search are local. **Only hit snippets and locations enter the model context**, never whole files. Indexing does not need network access, but search still needs the configured DSH model to understand the question, generate related terms, and answer.
 
 ---
 
 ## Quick Start
 
-> **0.6.0 release note**
+> **0.6.6 release note**
 >
-> `0.6.0` is a milestone release; previous versions have already been publicly used. Core search, indexing, and paper export are usable, but testing is still recommended: parsing results, index behavior, APIs, and export formats may continue to change. Testing and feedback are welcome.
+> `0.6.6` is a milestone release; previous versions have already been publicly used. Core search, indexing, and paper export are usable, but testing is still recommended: parsing results, index behavior, APIs, and export formats may continue to change. Testing and feedback are welcome.
 >
 > Before using it on production or important material:
 >
@@ -42,7 +41,7 @@ Parsing and search are local. **Only hit snippets and locations enter the model 
 > - when reporting issues, include version, file type, and reproduction steps; do not upload sensitive originals.
 
 1. Open Settings → **Local Search Settings**;
-2. Enter one or more absolute library paths under **Database and index location**;
+2. Enter one or more absolute library paths under **Database and index location**, e.g. `D:\libraries\chinese`, `D:\libraries\math`. Quick path: open the folder in Explorer, click the address bar, `Ctrl+C`; or `Shift+right-click` the folder and choose Copy as path, then remove surrounding quotes;
 3. Save; indexing starts, and progress is shown under **Index status**;
 4. Start a new session and choose **Local Folder Search**;
 5. Ask directly, for example:
@@ -53,6 +52,31 @@ Search for “Xinhai Revolution” and give me the files and locations.
 ```
 
 The path is needed only once. Later sessions read the configured libraries automatically.
+
+---
+
+## Local Dependencies for Indexing
+
+Indexing does not call a model or need an API key. Dependencies:
+
+| Dependency | Required | Purpose |
+|---|---|---|
+| DSH `>= 0.2.0-rc.2` | yes | Plugin host and settings page |
+| Node.js `>= 22.19` | yes | Plugin runtime and parser worker |
+| Windows + Microsoft Office | optional for legacy files | Only `.doc` / `.rtf` / `.ppt` need local Word / PowerPoint to convert to PDF |
+| Disk space | yes | Index cache; defaults to `%LOCALAPPDATA%\dsh-library-search` |
+| Network | not for indexing; yes for search | Indexing is fully local; search location is local, but question understanding, related-term generation, and the final answer use the configured DSH model |
+
+Notes:
+
+- `.docx` / `.pdf` / `.pptx` / `.ppsx` / `.xlsx` / `.xls` / `.txt` / `.md` / `.csv` do not require local Office;
+- `.doc` / `.rtf` require local Microsoft Word; `.ppt` requires local PowerPoint; WPS / LibreOffice are not the current conversion path;
+- 32-bit Office automatically uses SysWOW64 PowerShell; no manual switch is needed;
+- `.zip` extraction uses bundled `fflate`; 7-Zip / WinRAR are not required;
+- Python, Java, GPU, or OCR services are not required;
+- Indexing does not call a model or require network access; search still needs the configured DSH model to understand the question, generate related terms, and answer;
+- Scanned PDFs and text inside images are not indexed yet; OCR / image search is planned for 0.7.0;
+- The first large build can use significant CPU, memory, and disk; validate on a small subset first.
 
 ---
 
@@ -68,6 +92,8 @@ The top of the **Search modes** card has four presets:
 |Custom|Expands every step and setting below; starts from saved local values and can be edited.|
 
 Only Custom expands the detailed steps; the other modes show preset descriptions.
+
+**Full mode already opens the file limit, so it does not need `all=true`.** `all=true` is relevant to Original, Default, and Custom: it expands only the final displayed file count, not the search terms or association scope.
 
 The selected mode is saved and reused by new sessions.
 
@@ -90,11 +116,20 @@ D:\\libraries\\biology
 * Searches aggregate all libraries by default; the result header lists the libraries searched;
 * Pass `library` to search a single library.
 
+The **Search scope** selector is always shown below the library paths: with one library or none, it is disabled and fixed to **Search all libraries**; with two or more, it can be changed:
+
+* **Search all libraries**: aggregate every library directly;
+* **Ask before searching**: the model asks with a multi-select list containing “all libraries” and every configured library path; the user only selects, never types. Multiple specific libraries can be selected; choosing “all libraries” overrides other choices, and selecting every library is also treated as all.
+
+If the user explicitly names a library in the question, that choice wins over this default scope.
+
+After choosing all libraries, the model passes `allLibraries=true`; for one library it passes that library's `library` path.
+
 ## Compact Output
 
 By default each file lists at most 2 hits; when there are many files, only the first N are shown with “X more not listed.”
 
-Only when the user explicitly says “list all / show every file” does the model pass `all=true` to open the file limit. Each file still lists at most 2 hits. Use `library\_read` for full text.
+Only when the user explicitly says “list all / show every file” does the model pass `all=true` to open the file limit. Each file still lists at most 2 hits. `all=true` affects output count only, not search scope; Full mode already opens file limits. Use `library_read` for full text.
 
 ---
 
@@ -379,16 +414,15 @@ Handling:
 
 ## Does the Cache Make Search Incomplete?
 
-The cache does not lose hits: it is a complete copy of extracted text, scanned line by line—no sampling, summarization, or truncation.
+For documents successfully extracted into the index, search scans all saved text in the cache—no sampling, summary, or truncation. However, the per-file extraction cap, cache capacity, index status, and format support still limit what can be searched.
 
 Cache-vs-direct extraction consistency is covered by general regression tests; specific local files are not recorded in this README.
 
 Remaining gaps:
 
-* Index build not finished;
+* Index build not finished, or paused after reaching the cache cap with pending files;
 * Word headers/footers/footnotes/formulas; PPT notes; Excel formulas/comments; text inside scanned PDF images;
-* Archives/images/video are indexed by file name only;
-* Cache cap reached;
+* `.rar` / `.7z` / images / video are indexed by file name only; `.zip` indexes only supported members;
 * File changed but mtime and size unchanged (use `refresh: "force"`).
 
 ---
@@ -418,7 +452,7 @@ The plugin reads arbitrary Office/PDF/archive documents, so **library files must
 |Max entry size (MB)|64|Uncompressed size of one entry|
 |Max total extracted size (MB)|512|Total uncompressed size of one archive|
 |Max compression ratio|200|Extracted size / compressed size|
-|Max extracted text (MB)|20|Text characters retained per file; excess is truncated|
+|Max extracted text (MB)|20|Truncated by character count, not UTF-8 bytes; roughly 20 × 1024 × 1024 characters|
 |Max archive depth|3|Maximum nested extraction depth; deeper archives are skipped|
 |Nested tree max entries|10000|Total entries across one archive and all nested archives|
 |Nested tree extracted cap (MB)|1024|Total uncompressed size across one archive and all nested archives|
@@ -428,12 +462,32 @@ The plugin reads arbitrary Office/PDF/archive documents, so **library files must
 
 Changes apply to newly extracted/re-extracted files; **already successful cached documents are not re-extracted automatically**. Clear the relevant cache and rebuild if needed.
 
+### Local API
+
+Two routes are exposed through the DSH Web Server:
+
+```text
+/api/dsh-folder-search/settings
+/api/dsh-folder-search/index
+```
+
+| Item | Current handling |
+|---|---|
+| Same-origin check | If `Origin` is present it must match `Host`; requests without `Origin` (local tools) are allowed |
+| Methods | Settings: GET/HEAD/POST; Index: GET status, POST only `action=build` |
+| Body size | 64 KB upper bound |
+| Parameter checks | Index POST requires existing directories; settings fields are sanitized |
+| Concurrent builds | Different library sets are refused while one runs; the same set returns the active job |
+| Authentication | No plugin-level token or role check; relies on the DSH Web Server local-access boundary |
+
+Do not expose the DSH Web Server directly to untrusted networks. Add authentication and access control at a reverse proxy if remote access is needed. The settings GET response includes library paths and should be treated as sensitive.
+
 ### ZIP Archives
 
 `.zip` files are safely extracted to a random temporary directory. Supported members are extracted, their text is written to the index cache, and temporary files are deleted in `finally`.
 
 * Search result links still point to the original `.zip`;
-* Location labels include the member path, e.g. “Archive: folder/a.docx · paragraph 12”;
+* Location labels include the member path, e.g. "Archive: folder/a.docx - paragraph 12";
 * Nested ZIPs are bounded by max depth and tree-wide entry/size budgets;
 * Corrupt or encrypted members are skipped without breaking others;
 * `.rar` / `.7z` remain file-name-only.
@@ -500,3 +554,15 @@ lib/settings-host.js   settings API, build jobs, migration
 cordis.patch.yml       mode preset
 ```
 
+
+
+---
+
+## Notice and Disclaimer
+
+- This plugin is primarily AI-assisted, with human review, testing, and editing by the maintainer. It may contain errors, omissions, or unsuitability for a particular purpose.
+- Code and documentation are provided under the MIT License, without warranties of any kind. Users are responsible for any direct or indirect loss arising from use.
+- Library content, file names, third-party documents, trademarks, and examples remain the property of their respective owners. The MIT License does not cover third-party content; users must ensure they have the right to process their files.
+- This project is not affiliated with, endorsed by, or partnered with DeepSeek, DSH, or any content provider. Third-party names are used only to describe compatibility.
+- AI-assisted output may resemble publicly available code or material. If you believe this project infringes your rights, please open an issue in the repository; verified material will be removed or adjusted.
+- This notice is not legal advice. For commercial distribution, modification, or high-risk use, perform your own copyright, licensing, and security review.

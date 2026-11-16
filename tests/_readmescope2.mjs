@@ -1,0 +1,10 @@
+﻿import fs from "node:fs";
+let p="README.md"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("配置两个以上题库后，题库位置下方会出现「搜索范围」：","「搜索范围」始终显示在题库位置下方：只有一个题库或尚未配置时是灰色、固定为「全部库中搜索」；配置两个以上题库后可选：");
+c=c.replace("* **搜索前询问我**：模型先询问用户选择全部库还是具体库，不会自行猜。","* **搜索前询问我**：模型先询问用户选择全部库还是具体库，不会自行猜。\n\n如果用户在问题中明确指定了某个题库，以用户指定为准，不再按这里的默认范围处理。");
+fs.writeFileSync(p,c,"utf8");
+p="README.en.md"; c=fs.readFileSync(p,"utf8");
+c=c.replace("With two or more libraries, a **Search scope** selector appears below the library paths:","The **Search scope** selector is always shown below the library paths: with one library or none, it is disabled and fixed to **Search all libraries**; with two or more, it can be changed:");
+c=c.replace("* **Ask before searching**: the model first asks whether to search all libraries or one specific library.","* **Ask before searching**: the model first asks whether to search all libraries or one specific library.\n\nIf the user explicitly names a library in the question, that choice wins over this default scope.");
+fs.writeFileSync(p,c,"utf8");
+console.log("README scope display");

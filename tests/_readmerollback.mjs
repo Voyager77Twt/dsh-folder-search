@@ -1,0 +1,18 @@
+﻿import fs from "node:fs";
+let p="README.md"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("2. 在「数据库与索引库位置」填写题库文件夹的绝对路径，或点右侧的「选择文件夹」；","2. 在「数据库与索引库位置」填写题库文件夹的绝对路径；例如 `D:\\题库\\语文`、`D:\\题库\\数学`。快速获取：资源管理器打开文件夹 → 点击地址栏 → `Ctrl+C`；或 `Shift+右键` 文件夹 →「复制为路径」，去掉外层引号；");
+c=c.replace("「题库位置」支持多个绝对路径，用逗号或换行分隔，也可以点「选择文件夹」逐个添加：","「题库位置」支持多个绝对路径，用逗号或换行分隔：");
+c=c.replace("插件通过 DSH Web Server 暴露三个本地接口：","插件通过 DSH Web Server 暴露两个本地接口：");
+c=c.replace("\n/api/dsh-folder-search/pick-folder","");
+c=c.replace("| 请求方法 | 设置接口只接受 GET/HEAD/POST；索引接口 GET 查状态，POST 只接受 `action=build`；选择文件夹接口只接受 POST |","| 请求方法 | 设置接口只接受 GET/HEAD/POST；索引接口 GET 查状态，POST 只接受 `action=build` |");
+c=c.replace("| 参数校验 | 索引 POST 会检查题库路径必须是已存在目录；其他设置走字段清洗；选择文件夹接口会打开本机原生目录对话框 |","| 参数校验 | 索引 POST 会检查题库路径必须是已存在目录；其他设置走字段清洗 |");
+fs.writeFileSync(p,c,"utf8");
+p="README.en.md"; c=fs.readFileSync(p,"utf8");
+c=c.replace("2. Enter one or more absolute library paths under **Database and index location**, or click **Choose folder**;","2. Enter one or more absolute library paths under **Database and index location**, e.g. `D:\\libraries\\chinese`, `D:\\libraries\\math`. Quick path: open the folder in Explorer, click the address bar, `Ctrl+C`; or `Shift+right-click` the folder and choose Copy as path, then remove surrounding quotes;");
+c=c.replace("**Library path** accepts multiple absolute paths separated by commas or new lines, or add them one by one with **Choose folder**:","**Library path** accepts multiple absolute paths separated by commas or new lines:");
+c=c.replace("Three routes are exposed through the DSH Web Server:","Two routes are exposed through the DSH Web Server:");
+c=c.replace("\n/api/dsh-folder-search/pick-folder","");
+c=c.replace("| Methods | Settings: GET/HEAD/POST; Index: GET status, POST only `action=build`; Folder picker: POST only |","| Methods | Settings: GET/HEAD/POST; Index: GET status, POST only `action=build` |");
+c=c.replace("| Parameter checks | Index POST requires existing directories; settings fields are sanitized; the picker opens the native local folder dialog |","| Parameter checks | Index POST requires existing directories; settings fields are sanitized |");
+fs.writeFileSync(p,c,"utf8");
+console.log("README rollback");

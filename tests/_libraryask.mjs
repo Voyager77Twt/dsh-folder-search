@@ -1,0 +1,12 @@
+﻿import fs from "node:fs";
+let p="lib/index.js"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("  all: { type: 'boolean', description: '仅在用户明确说“全部列出/列出所有文件”时设为 true；默认 false，只列前 N 个文件，且每文件仍只列前 2 条命中。' },","  all: { type: 'boolean', description: '仅在用户明确说“全部列出/列出所有文件”时设为 true；默认 false，只列前 N 个文件，且每文件仍只列前 2 条命中。' },\n  allLibraries: { type: 'boolean', description: '仅在多题库设置选择“搜索前询问我”且用户明确选择全部库时设为 true；其余情况省略。' },");
+c=c.replace("      name: 'library_search',\n      description:\n        '鍦ㄩ搴撴枃浠跺す", "      name: 'library_search',\n      description:\n        '鍦ㄩ搴撴枃浠跺す");
+c=c.replace("      output: { schema: { type: 'object', additionalProperties: true }, render: (_args, value) => textRender(renderSearchResult(value)) },","      output: { schema: { type: 'object', additionalProperties: true }, render: (_args, value) => textRender(value?.needsLibraryChoice ? value.message : renderSearchResult(value)) },");
+c=c.replace("      async execute(args) {\n        const { settings, config, indexes } = await prepareTool(args, resolved);\n        return searchLibraries(indexes, args ?? {}, config, settings);\n      },","      async execute(args) {\n        const { settings, config, indexes } = await prepareTool(args, resolved);\n        if (settings.librarySearchScope === 'ask' && indexes.length > 1 && !args?.library && args?.allLibraries !== true) {\n          return {\n            needsLibraryChoice: true,\n            libraries: indexes.map((entry) => entry.library),\n            message: `当前配置了多个题库，搜索范围设置为“搜索前询问我”。请先询问用户：要在全部 ${indexes.length} 个库中搜索，还是只搜索其中一个库？\\n${indexes.map((entry) => '- ' + entry.library).join('\\n')}`,\n          };\n        }\n        return searchLibraries(indexes, args ?? {}, config, settings);\n      },");
+fs.writeFileSync(p,c,"utf8");
+let y=fs.readFileSync("cordis.patch.yml","utf8");
+const marker="- 默认只列前 N 个文件和每文件前 2 条命中；只有用户明确说「全部列出 / 列出所有文件」时才传 all=true。不要自行展开完整列表。";
+const add=marker+"\n- 多题库且设置页搜索范围为「搜索前询问我」时，如果 library_search 返回 needsLibraryChoice=true，必须先问用户选择全部库还是具体库；用户明确选全部后传 allLibraries=true，选具体库时传 library 绝对路径。不要自行选库或跳过这个问题。";
+if(!y.includes(marker)) throw new Error('prompt marker'); y=y.replace(marker,add); fs.writeFileSync("cordis.patch.yml",y,"utf8");
+console.log("multi-library ask behavior");

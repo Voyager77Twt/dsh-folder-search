@@ -1,0 +1,14 @@
+﻿import fs from "node:fs";
+let p="README.en.md"; let c=fs.readFileSync(p,"utf8");
+c=c.replace("* Location labels include the member path, e.g. “Archive: folder/a.docx · paragraph 12”;",'* Location labels include the member path, e.g. "Archive: folder/a.docx - paragraph 12";');
+c=c.replace(/e\.g\. .{0,3}Archive: folder\/a\.docx[^;]*;/, '* Location labels include the member path, e.g. "Archive: folder/a.docx - paragraph 12";');
+fs.writeFileSync(p,c,"utf8");
+p="lib/client.js"; c=fs.readFileSync(p,"utf8");
+c=c.replace("note: '单个文件最多保留约 20 × 1024 × 1024 个字符；MB 只是易读说法，不是文件字节大小。'","note: '单个文件最多保留的字符数；MB 只是易读说法，不是文件字节大小。'");
+const start=c.indexOf("    const EN = "); const end=c.indexOf("\n    const isEnglish",start);
+const en=JSON.parse(c.slice(start+"    const EN = ".length,end).trim().replace(/;$/,''));
+en['单个文件最多保留的字符数；MB 只是易读说法，不是文件字节大小。']='Characters retained per file; MB is a readable label, not the file byte size.';
+delete en['单个文件最多保留约 20 × 1024 × 1024 个字符；MB 只是易读说法，不是文件字节大小。'];
+c=c.slice(0,start)+"    const EN = "+JSON.stringify(en,null,2)+";"+c.slice(end);
+fs.writeFileSync(p,c,"utf8");
+console.log("docs/UI polish");
